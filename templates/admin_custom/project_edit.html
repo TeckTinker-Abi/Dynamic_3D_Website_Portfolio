@@ -1,0 +1,300 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load nexus_admin_extras %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-white">{{ page_title }}</h2>
+            <p class="text-gray-400 text-sm mt-1">Manage project details, content, and architecture.</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'custom_admin:projects' %}"
+                class="px-4 py-2 rounded border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors text-sm">
+                Cancel
+            </a>
+            <button type="submit" form="project-form"
+                class="px-6 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-medium shadow-lg shadow-cyan-500/20 transition-all text-sm">
+                Save Project
+            </button>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="project-form" class="space-y-4">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <h4 class="text-red-400 text-sm font-medium mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Please
+                correct the following errors:</h4>
+            <ul class="list-disc list-inside text-xs text-red-400 space-y-1">
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <li><span class="font-bold capitalize">{{ field }}:</span> {{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- SECTION A: BASIC INFORMATION -->
+        <details class="glass-panel rounded-lg overflow-hidden group" open>
+            <summary
+                class="p-4 border-b border-white/5 bg-white/[0.02] cursor-pointer flex justify-between items-center select-none hover:bg-white/[0.04] transition-colors">
+                <h3 class="font-scifi text-lg text-cyan-400 flex items-center gap-2">
+                    <i class="fas fa-info-circle w-5"></i> Basic Information
+                </h3>
+                <i class="fas fa-chevron-down text-gray-500 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Title *</label>
+                        {% styled_field form.title %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Slug (Auto-generated)</label>
+                        {% styled_field form.slug %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Category *</label>
+                        {% styled_field form.category %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Domain Tags (JSON List)</label>
+                        {% styled_field form.domain_tags %}
+                        <p class="text-xs text-gray-500 mt-1">Example: ["AI", "Blockchain", "IoT"]</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Short Summary (2-3 lines) *</label>
+                    {% styled_field form.short_description %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Cover Image</label>
+                    {% styled_field form.cover_image %}
+                </div>
+
+                <div class="flex items-center gap-8 pt-2">
+                    <div class="flex items-center gap-3">
+                        {% styled_field form.is_active %}
+                        <label for="{{ form.is_active.id_for_label }}"
+                            class="text-sm text-gray-300 cursor-pointer">Active Project</label>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        {% styled_field form.featured %}
+                        <label for="{{ form.featured.id_for_label }}" class="text-sm text-yellow-400 cursor-pointer"><i
+                                class="fas fa-star mr-1"></i> Featured</label>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- SECTION B: PROBLEM STATEMENT -->
+        <details class="glass-panel rounded-lg overflow-hidden group">
+            <summary
+                class="p-4 border-b border-white/5 bg-white/[0.02] cursor-pointer flex justify-between items-center select-none hover:bg-white/[0.04] transition-colors">
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle w-5 text-red-400"></i> Problem Statement
+                </h3>
+                <i class="fas fa-chevron-down text-gray-500 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-6">
+                <p class="text-xs text-gray-500 mb-2">Describe the core challenge this project addresses.</p>
+                {% styled_field form.problem_statement %}
+            </div>
+        </details>
+
+        <!-- SECTION C: SOLUTION OVERVIEW -->
+        <details class="glass-panel rounded-lg overflow-hidden group">
+            <summary
+                class="p-4 border-b border-white/5 bg-white/[0.02] cursor-pointer flex justify-between items-center select-none hover:bg-white/[0.04] transition-colors">
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-lightbulb w-5 text-yellow-400"></i> Solution Overview
+                </h3>
+                <i class="fas fa-chevron-down text-gray-500 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-6">
+                <p class="text-xs text-gray-500 mb-2">High-level explanation of the implemented solution.</p>
+                {% styled_field form.solution_overview %}
+            </div>
+        </details>
+
+        <!-- SECTION D: SYSTEM ARCHITECTURE -->
+        <details class="glass-panel rounded-lg overflow-hidden group">
+            <summary
+                class="p-4 border-b border-white/5 bg-white/[0.02] cursor-pointer flex justify-between items-center select-none hover:bg-white/[0.04] transition-colors">
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-sitemap w-5 text-purple-400"></i> System Architecture
+                </h3>
+                <i class="fas fa-chevron-down text-gray-500 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Architecture Diagram</label>
+                    {% styled_field form.architecture_image %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Technical Description</label>
+                    <p class="text-xs text-gray-500 mb-2">Layer breakdown and data flows.</p>
+                    {% styled_field form.system_architecture %}
+                </div>
+            </div>
+        </details>
+
+        <!-- SECTION E: TECHNOLOGIES -->
+        <details class="glass-panel rounded-lg overflow-hidden group">
+            <summary
+                class="p-4 border-b border-white/5 bg-white/[0.02] cursor-pointer flex justify-between items-center select-none hover:bg-white/[0.04] transition-colors">
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-code w-5 text-blue-400"></i> Technologies Used
+                </h3>
+                <i class="fas fa-chevron-down text-gray-500 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Tech Stack JSON</label>
+                <p class="text-xs text-gray-500 mb-2">Format: [{"group": "Backend", "items": ["Django", "Postgres"]}]
+                </p>
+                {% styled_field form.tech_stack %}
+            </div>
+        </details>
+
+        <!-- SECTION F: CAPABILITIES -->
+        <details class="glass-panel rounded-lg overflow-hidden group">
+            <summary
+                class="p-4 border-b border-white/5 bg-white/[0.02] cursor-pointer flex justify-between items-center select-none hover:bg-white/[0.04] transition-colors">
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-bolt w-5 text-orange-400"></i> Capabilities Demonstrated
+                </h3>
+                <i class="fas fa-chevron-down text-gray-500 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Capabilities JSON List</label>
+                <p class="text-xs text-gray-500 mb-2">Example: ["End-to-end design", "Hardware integration"]</p>
+                {% styled_field form.capabilities %}
+            </div>
+        </details>
+
+        <!-- SECTION G: IMPLEMENTATION -->
+        <details class="glass-panel rounded-lg overflow-hidden group">
+            <summary
+                class="p-4 border-b border-white/5 bg-white/[0.02] cursor-pointer flex justify-between items-center select-none hover:bg-white/[0.04] transition-colors">
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-cogs w-5 text-gray-400"></i> Implementation Highlights
+                </h3>
+                <i class="fas fa-chevron-down text-gray-500 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-6">
+                <p class="text-xs text-gray-500 mb-2">Design decisions, challenges, and trade-offs.</p>
+                {% styled_field form.implementation_details %}
+            </div>
+        </details>
+
+        <!-- SECTION H: RESULTS & IMPACT -->
+        <details class="glass-panel rounded-lg overflow-hidden group">
+            <summary
+                class="p-4 border-b border-white/5 bg-white/[0.02] cursor-pointer flex justify-between items-center select-none hover:bg-white/[0.04] transition-colors">
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-chart-line w-5 text-green-400"></i> Results & Impact
+                </h3>
+                <i class="fas fa-chevron-down text-gray-500 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-6">
+                <p class="text-xs text-gray-500 mb-2">Performance stats, deployment success, metrics.</p>
+                {% styled_field form.results %}
+            </div>
+        </details>
+
+        <!-- SECTION I: TRUST SIGNALS -->
+        <details class="glass-panel rounded-lg overflow-hidden group">
+            <summary
+                class="p-4 border-b border-white/5 bg-white/[0.02] cursor-pointer flex justify-between items-center select-none hover:bg-white/[0.04] transition-colors">
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-shield-alt w-5 text-cyan-400"></i> Trust Signals
+                </h3>
+                <i class="fas fa-chevron-down text-gray-500 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-center gap-3 p-3 rounded bg-white/[0.02] border border-white/5">
+                    {% styled_field form.trust_real_world %}
+                    <label for="{{ form.trust_real_world.id_for_label }}" class="text-sm text-gray-300">Real-World
+                        Deployment</label>
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded bg-white/[0.02] border border-white/5">
+                    {% styled_field form.trust_live_data %}
+                    <label for="{{ form.trust_live_data.id_for_label }}" class="text-sm text-gray-300">Handles Live
+                        Data</label>
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded bg-white/[0.02] border border-white/5">
+                    {% styled_field form.trust_production_ready %}
+                    <label for="{{ form.trust_production_ready.id_for_label }}" class="text-sm text-gray-300">Production
+                        Ready</label>
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded bg-white/[0.02] border border-white/5">
+                    {% styled_field form.trust_hardware_integrated %}
+                    <label for="{{ form.trust_hardware_integrated.id_for_label }}"
+                        class="text-sm text-gray-300">Hardware Integrated</label>
+                </div>
+            </div>
+        </details>
+
+        <!-- SECTION J: LINKS -->
+        <details class="glass-panel rounded-lg overflow-hidden group">
+            <summary
+                class="p-4 border-b border-white/5 bg-white/[0.02] cursor-pointer flex justify-between items-center select-none hover:bg-white/[0.04] transition-colors">
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-link w-5 text-blue-400"></i> Project Links
+                </h3>
+                <i class="fas fa-chevron-down text-gray-500 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">GitHub URL</label>
+                    {% styled_field form.github_link %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Live Demo URL</label>
+                    {% styled_field form.live_link %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Documentation URL</label>
+                    {% styled_field form.docs_link %}
+                </div>
+            </div>
+        </details>
+
+        <!-- Submit Footer -->
+        <!-- Submit Footer -->
+        <div class="pt-6 border-t border-white/5 flex items-center justify-between gap-4">
+            {% if delete_url %}
+            <a href="{{ delete_url }}"
+                class="px-4 py-2 rounded text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm border border-transparent hover:border-red-500/20">
+                <i class="fas fa-trash-alt mr-2"></i>Delete Project
+            </a>
+            {% else %}
+            <div></div>
+            {% endif %}
+
+            <div class="flex items-center gap-4">
+                <a href="{% url 'custom_admin:projects' %}"
+                    class="px-4 py-2 rounded border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors text-sm">
+                    Cancel
+                </a>
+                <button type="submit"
+                    class="px-6 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-medium shadow-lg shadow-cyan-500/20 transition-all text-sm">
+                    Save Project
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

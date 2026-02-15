@@ -1,0 +1,122 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% block page_title %}Project Center{% endblock %}
+
+{% block content %}
+<div class="glass-panel rounded-lg overflow-hidden">
+    <div
+        class="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/[0.02]">
+        <div>
+            <h3 class="font-scifi text-lg text-white">All Projects</h3>
+            <p class="text-xs text-gray-500">Manage your portfolio work.</p>
+        </div>
+
+        <!-- Filters & Actions -->
+        <div class="flex flex-col md:flex-row items-center gap-3">
+            <form method="get" class="relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search projects..."
+                    class="pl-8 pr-4 py-1.5 rounded bg-black/30 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500 w-full md:w-48 placeholder-gray-600">
+            </form>
+
+            <div class="flex bg-black/30 rounded p-1 border border-white/10 text-[10px]">
+                <a href="?"
+                    class="px-3 py-1 rounded transition-colors {% if not current_status and not current_featured %}bg-white/10 text-white{% else %}text-gray-500 hover:text-white{% endif %}">All</a>
+                <a href="?status=active"
+                    class="px-3 py-1 rounded transition-colors {% if current_status == 'active' %}bg-green-500/20 text-green-400{% else %}text-gray-500 hover:text-green-400{% endif %}">Active</a>
+                <a href="?status=draft"
+                    class="px-3 py-1 rounded transition-colors {% if current_status == 'draft' %}bg-gray-700 text-gray-300{% else %}text-gray-500 hover:text-gray-300{% endif %}">Draft</a>
+                <a href="?featured=true"
+                    class="px-3 py-1 rounded transition-colors {% if current_featured == 'true' %}bg-yellow-500/10 text-yellow-400{% else %}text-gray-500 hover:text-yellow-400{% endif %}">Featured</a>
+            </div>
+
+            <a href="{% url 'custom_admin:project_add' %}"
+                class="px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-colors shadow-lg shadow-cyan-900/20 whitespace-nowrap">
+                <i class="fas fa-plus mr-1"></i> New Project
+            </a>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-gray-400">
+            <thead class="bg-white/5 text-gray-200 font-mono text-xs uppercase">
+                <tr>
+                    <th class="px-6 py-4">Title</th>
+                    <th class="px-6 py-4">Category</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Featured</th>
+                    <th class="px-6 py-4">Updated</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% for project in projects %}
+                <tr class="hover:bg-white/[0.02] transition-colors group">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex flex-col">
+                                <span
+                                    class="text-white font-medium group-hover:text-cyan-400 transition-colors truncate">
+                                    {{ project.title }}
+                                </span>
+                                <span class="text-[10px] text-gray-600 font-mono">
+                                    {{ project.slug }}
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded bg-white/5 text-gray-300 text-xs border border-white/10">
+                            {{ project.category.name|default:"Uncategorized" }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if project.is_active %}
+                        <span class="flex items-center gap-2 text-xs text-green-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Active
+                        </span>
+                        {% else %}
+                        <span class="flex items-center gap-2 text-xs text-gray-500">
+                            <span class="w-1.5 h-1.5 rounded-full bg-gray-600"></span> Draft
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if project.featured %}
+                        <span
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
+                            <i class="fas fa-star text-[8px]"></i> Featured
+                        </span>
+                        {% else %}
+                        <span class="text-gray-600 text-[10px] opacity-40">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 font-mono text-xs text-gray-500">
+                        {{ project.updated_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-3">
+                            <a href="{% url 'custom_admin:project_edit' project.pk %}"
+                                class="px-3 py-1 rounded border border-white/10 hover:bg-white/10 text-cyan-400 hover:text-white transition-colors text-xs">
+                                Edit
+                            </a>
+                            <a href="{% url 'custom_admin:project_delete' project.pk %}"
+                                class="text-gray-500 hover:text-red-500 transition-colors text-xs"
+                                title="Delete Project">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        <i class="fas fa-folder-open text-4xl mb-3 opacity-20 block"></i>
+                        No projects found. Start building!
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

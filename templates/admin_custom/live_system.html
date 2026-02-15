@@ -1,0 +1,108 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load nexus_admin_extras %}
+
+{% block page_title %}Live System{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+
+    <!-- Top Section: Form -->
+    <div class="glass-panel p-6 rounded-lg">
+        <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+            <div>
+                <h2 class="text-xl font-bold text-white"><i class="fas fa-code-branch text-purple-400 mr-2"></i>Live
+                    System</h2>
+                <p class="text-gray-400 text-sm mt-1">Manage the global system status broadcast.</p>
+            </div>
+            <button type="submit" form="system-form"
+                class="px-6 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-medium shadow-lg shadow-cyan-500/20 transition-all text-sm">
+                Update Status
+            </button>
+        </div>
+
+        <form method="post" id="system-form" class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <ul class="list-disc list-inside text-xs text-red-400 space-y-1">
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li><span class="font-bold capitalize">{{ field }}:</span> {{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left: Status Config -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">System Title</label>
+                        {% styled_field form.title %}
+                        <p class="text-xs text-gray-500 mt-1">e.g., "System V2.0", "Maintenance Mode"</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Highlight Tag</label>
+                        {% styled_field form.highlight_tag %}
+                        <p class="text-xs text-gray-500 mt-1">Short badge text, e.g., "LIVE", "BETA"</p>
+                    </div>
+
+                    <div class="pt-2">
+                        <div class="flex items-center gap-3 p-4 bg-white/5 rounded border border-white/10">
+                            {% styled_field form.is_active %}
+                            <div>
+                                <label for="{{ form.is_active.id_for_label }}"
+                                    class="text-sm font-medium text-white cursor-pointer select-none">System
+                                    Active</label>
+                                <p class="text-xs text-gray-500 mt-1">Toggle to show/hide the live status indicator.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Description -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Public Description</label>
+                    {% styled_field form.description %}
+                    <p class="text-xs text-gray-500 mt-1">Brief status message visible to visitors.</p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Live Preview Section -->
+    <div class="border-t border-white/10 pt-8">
+        <h3 class="text-sm uppercase tracking-wider text-gray-500 font-mono mb-4 text-center">Live Preview</h3>
+
+        <div class="max-w-md mx-auto p-6 bg-black/50 border border-white/10 rounded-lg backdrop-blur-sm">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <div
+                        class="w-3 h-3 rounded-full {% if item.is_active %}bg-green-500{% else %}bg-gray-500{% endif %}">
+                    </div>
+                    {% if item.is_active %}
+                    <div class="absolute inset-0 w-3 h-3 rounded-full bg-green-500 animate-ping opacity-75"></div>
+                    {% endif %}
+                </div>
+
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <h4 class="text-white font-mono font-bold">{{ item.title|default:"System Status" }}</h4>
+                        {% if item.highlight_tag %}
+                        <span
+                            class="px-1.5 py-0.5 rounded bg-cyan-900/50 border border-cyan-500/50 text-cyan-400 text-[10px] uppercase font-bold tracking-wider">
+                            {{ item.highlight_tag }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-gray-400 text-xs leading-relaxed">
+                        {{ item.description|default:"No active system message." }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+<div class="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center animate-float group"
+    style="animation-duration: 6s;">
+    <!-- Bot Glow -->
+    <div
+        class="absolute inset-0 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition-colors duration-500">
+    </div>
+
+    <!-- Bot Container (SVG) -->
+    <div
+        class="relative w-48 h-48 bg-black/50 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center shadow-2xl">
+        <!-- Simple abstract futuristic face -->
+        <svg viewBox="0 0 100 100" class="w-32 h-32 text-cyan-400 overflow-visible">
+            <!-- Eyes -->
+            <rect x="25" y="40" width="15" height="4" rx="2" class="fill-current animate-blink" />
+            <rect x="60" y="40" width="15" height="4" rx="2" class="fill-current animate-blink" />
+
+            <!-- Mouth / Voice Wave -->
+            <g class="group-hover:opacity-100 opacity-50 transition-opacity">
+                <circle cx="50" cy="70" r="2" class="fill-purple-400 animate-pulse" />
+                <rect x="40" y="68" width="4" height="4" rx="2" class="fill-purple-400 animate-sound"
+                    style="animation-delay: 0.1s" />
+                <rect x="56" y="68" width="4" height="4" rx="2" class="fill-purple-400 animate-sound"
+                    style="animation-delay: 0.2s" />
+            </g>
+        </svg>
+
+        <!-- Floating Ring -->
+        <div class="absolute inset-0 border border-cyan-500/30 rounded-full animate-spin-slow"
+            style="border-style: dashed;"></div>
+    </div>
+
+    <!-- Bot Bubble -->
+    <div
+        class="absolute -top-4 right-0 bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+        <p class="font-mono text-[10px] text-cyan-300 typing-effect">SYSTEM STATUS: ONLINE</p>
+    </div>
+</div>

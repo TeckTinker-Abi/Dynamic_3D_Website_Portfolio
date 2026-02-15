@@ -1,0 +1,116 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% block page_title %}Category Management{% endblock %}
+
+{% block content %}
+<div class="glass-panel rounded-lg overflow-hidden">
+    <!-- Header with Search & Filters -->
+    <div
+        class="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/[0.02]">
+        <div>
+            <h3 class="font-scifi text-lg text-white">Project Categories</h3>
+            <p class="text-xs text-gray-500">Organize your work into logical buckets.</p>
+        </div>
+
+        <div class="flex flex-col md:flex-row items-center gap-3">
+            <!-- Search -->
+            <form method="get" class="relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search categories..."
+                    class="pl-8 pr-4 py-1.5 rounded bg-black/30 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500 w-full md:w-48 placeholder-gray-600">
+            </form>
+
+            <!-- Filters -->
+            <div class="flex bg-black/30 rounded p-1 border border-white/10 text-[10px]">
+                <a href="?"
+                    class="px-3 py-1 rounded transition-colors {% if not current_status %}bg-white/10 text-white{% else %}text-gray-500 hover:text-white{% endif %}">All</a>
+                <a href="?status=active"
+                    class="px-3 py-1 rounded transition-colors {% if current_status == 'active' %}bg-green-500/20 text-green-400{% else %}text-gray-500 hover:text-green-400{% endif %}">Active</a>
+                <a href="?status=inactive"
+                    class="px-3 py-1 rounded transition-colors {% if current_status == 'inactive' %}bg-gray-700 text-gray-300{% else %}text-gray-500 hover:text-gray-300{% endif %}">Inactive</a>
+                <a href="?status=empty"
+                    class="px-3 py-1 rounded transition-colors {% if current_status == 'empty' %}bg-red-500/10 text-red-400{% else %}text-gray-500 hover:text-red-400{% endif %}">Empty</a>
+            </div>
+
+            <a href="{% url 'custom_admin:category_add' %}"
+                class="px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-colors shadow-lg shadow-cyan-900/20 whitespace-nowrap">
+                <i class="fas fa-plus mr-1"></i> New Category
+            </a>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-gray-400">
+            <thead class="bg-white/5 text-gray-200 font-mono text-xs uppercase">
+                <tr>
+                    <th class="px-6 py-4">Name</th>
+                    <th class="px-6 py-4">Slug</th>
+                    <th class="px-6 py-4">Projects</th>
+                    <th class="px-6 py-4">Order</th>
+                    <th class="px-6 py-4">Active</th>
+                    <th class="px-6 py-4">Updated</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% for category in categories %}
+                <tr class="hover:bg-white/[0.02] transition-colors group">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-folder text-purple-500"></i>
+                            <span class="text-white font-medium">{{ category.name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 font-mono text-xs text-gray-500">
+                        {{ category.slug }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if category.project_count > 0 %}
+                        <span
+                            class="inline-flex items-center px-2 py-1 rounded bg-white/5 text-cyan-400 text-xs border border-white/10">
+                            {{ category.project_count }} Projects
+                        </span>
+                        {% else %}
+                        <span
+                            class="inline-flex items-center px-2 py-1 rounded bg-red-500/10 text-red-400 text-xs border border-red-500/20 gap-1">
+                            <i class="fas fa-exclamation-triangle text-[10px]"></i> Empty
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-gray-500 font-mono text-xs">
+                        {{ category.order }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if category.is_active %}
+                        <span class="w-2 h-2 rounded-full bg-green-500 block shadow-[0_0_8px_rgba(34,197,94,0.5)]"
+                            title="Active"></span>
+                        {% else %}
+                        <span class="w-2 h-2 rounded-full bg-gray-600 block" title="Inactive"></span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-xs text-gray-600 font-mono">
+                        {{ category.updated_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-3">
+                            <a href="{% url 'custom_admin:category_edit' category.pk %}"
+                                class="px-3 py-1 rounded border border-white/10 hover:bg-white/10 text-cyan-400 hover:text-white transition-colors text-xs">Edit</a>
+                            <a href="{% url 'custom_admin:category_delete' category.pk %}"
+                                class="text-gray-500 hover:text-red-500 transition-colors text-xs"
+                                title="Delete Category"><i class="fas fa-trash-alt"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                        <i class="fas fa-folder-open text-4xl mb-3 opacity-20 block"></i>
+                        No categories found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load nexus_admin_extras %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-white">{{ page_title }}</h2>
+            <p class="text-gray-400 text-sm mt-1">Organize your portfolio into logical buckets.</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'custom_admin:categories' %}"
+                class="px-4 py-2 rounded border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors text-sm">Cancel</a>
+            <button type="submit" form="category-form"
+                class="px-6 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-medium shadow-lg shadow-cyan-500/20 transition-all text-sm">Save
+                Category</button>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="category-form" class="space-y-4">
+        {% csrf_token %}
+
+        <!-- Error Display -->
+        {% if form.errors %}
+        <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <h4 class="text-red-400 text-sm font-medium mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Please
+                correct the following errors:</h4>
+            <ul class="list-disc list-inside text-xs text-red-400 space-y-1">
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <li><span class="font-bold capitalize">{{ field }}:</span> {{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- SECTION A: BASIC INFO -->
+        <div class="glass-panel p-6 rounded-lg">
+            <h3 class="font-scifi text-lg text-cyan-400 flex items-center gap-2 mb-4">
+                <i class="fas fa-info-circle w-5"></i> Basic Information
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Category Name *</label>
+                    {% styled_field form.name %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Slug (Auto-generated)</label>
+                    {% styled_field form.slug %}
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Short Description</label>
+                    {% styled_field form.description %}
+                    <p class="text-xs text-gray-500 mt-1">Single line description.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Scope Statement</label>
+                    {% styled_field form.scope_statement %}
+                    <p class="text-xs text-gray-500 mt-1">Define what belongs here (2-3 lines).</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Display Order</label>
+                    {% styled_field form.order %}
+                </div>
+                <div class="flex items-center gap-3 pt-8">
+                    {% styled_field form.is_active %}
+                    <label for="{{ form.is_active.id_for_label }}" class="text-sm text-gray-300 cursor-pointer">Active
+                        (Visible)</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION B: SYSTEM MAPPING -->
+        <div class="glass-panel p-6 rounded-lg">
+            <h3 class="font-scifi text-lg text-white flex items-center gap-2 mb-4">
+                <i class="fas fa-project-diagram w-5 text-purple-400"></i> System Mapping
+            </h3>
+            <p class="text-xs text-gray-500 mb-4">Link this category to a node in the System Universe for automatic
+                navigation routing.</p>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Associated System Node</label>
+                {% styled_field form.system_node %}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="pt-6 border-t border-white/5 flex items-center justify-between gap-4">
+            {% if delete_url %}
+            <a href="{{ delete_url }}"
+                class="px-4 py-2 rounded text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm border border-transparent hover:border-red-500/20">
+                <i class="fas fa-trash-alt mr-2"></i>Delete Category
+            </a>
+            {% else %}
+            <div></div>
+            {% endif %}
+
+            <div class="flex items-center gap-4">
+                <a href="{% url 'custom_admin:categories' %}"
+                    class="px-4 py-2 rounded border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors text-sm">Cancel</a>
+                <button type="submit"
+                    class="px-6 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-medium shadow-lg shadow-cyan-500/20 transition-all text-sm">Save
+                    Category</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

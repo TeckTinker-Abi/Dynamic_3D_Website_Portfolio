@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category.name }} | System Module</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Orbitron & Inter & Mono -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #05070A;
+            --bg-panel: #0B0F1A;
+            --cyan-core: #00F5FF;
+            --purple-core: #7B61FF;
+            --text-main: #E6F1FF;
+            --text-dim: #8892B0;
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        /* Typography */
+        .font-scifi {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(11, 15, 26, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            border-color: var(--cyan-core);
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.1);
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+        }
+
+        .glass-card:hover::before {
+            left: 100%;
+        }
+
+        /* Utilities */
+        .text-glow {
+            text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+        }
+
+        /* Tech Tag */
+        .tech-tag {
+            background: rgba(0, 245, 255, 0.1);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            color: var(--cyan-core);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .tech-tag:hover {
+            background: rgba(0, 245, 255, 0.2);
+            box-shadow: 0 0 5px rgba(0, 245, 255, 0.4);
+        }
+
+        /* Loading Animation */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-cyan-500 selection:text-black">
+
+    <!-- Navigation (Minimal) -->
+    <nav
+        class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center mix-blend-difference bg-black/50 backdrop-blur-md">
+        <a href="/"
+            class="font-scifi font-bold text-xl tracking-widest text-white hover:text-cyan-400 transition-colors">AM.SYS
+            / <span class="text-cyan-400">DASHBOARD</span></a>
+
+        <div class="flex space-x-6">
+            <span class="font-mono text-xs text-gray-400">MODULE: {{ category.name|upper }}</span>
+        </div>
+    </nav>
+
+    <!-- 1️⃣ Category Hero Banner -->
+    <section class="pt-32 pb-12 px-6 border-b border-white/5 bg-gradient-to-b from-black to-transparent">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end">
+            <div class="max-w-2xl">
+                <div class="font-mono text-cyan-500 text-xs mb-4 animate-pulse">
+                    /// CATEGORY_INDEX_LOADED
+                </div>
+                <h1 class="font-scifi text-5xl md:text-6xl font-bold text-white mb-6">
+                    {{ category.name }}
+                </h1>
+                <p class="font-inter text-gray-400 text-lg leading-relaxed max-w-xl">
+                    {{ category.description }}
+                </p>
+            </div>
+
+            <!-- Stats Block -->
+            <div class="hidden md:block text-right">
+                <div class="glass-panel px-6 py-4 rounded-lg">
+                    <div class="font-mono text-xs text-gray-500 uppercase mb-1">Total Projects</div>
+                    <div class="font-scifi text-4xl font-bold text-white">{{ projects.count }}</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2️⃣ Filter & Sorting Control Bar -->
+    <section class="py-6 border-b border-white/5 bg-white/[0.02]">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+
+            <!-- Tech Stack Filter (Simple Implementation) -->
+            <div class="flex space-x-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                <a href="?tech="
+                    class="px-4 py-1 rounded border {% if not active_filter %}border-cyan-500 bg-cyan-500/10 text-cyan-400{% else %}border-white/10 text-gray-400 hover:border-white/30{% endif %} text-xs font-mono transition-colors">
+                    ALL
+                </a>
+                <!-- We can dynamically list unique tech stacks here later -->
+                <a href="?tech=Python"
+                    class="px-4 py-1 rounded border {% if active_filter == 'Python' %}border-cyan-500 bg-cyan-500/10 text-cyan-400{% else %}border-white/10 text-gray-400 hover:border-white/30{% endif %} text-xs font-mono transition-colors">
+                    PYTHON
+                </a>
+                <a href="?tech=React"
+                    class="px-4 py-1 rounded border {% if active_filter == 'React' %}border-cyan-500 bg-cyan-500/10 text-cyan-400{% else %}border-white/10 text-gray-400 hover:border-white/30{% endif %} text-xs font-mono transition-colors">
+                    REACT
+                </a>
+                <a href="?tech=Django"
+                    class="px-4 py-1 rounded border {% if active_filter == 'Django' %}border-cyan-500 bg-cyan-500/10 text-cyan-400{% else %}border-white/10 text-gray-400 hover:border-white/30{% endif %} text-xs font-mono transition-colors">
+                    DJANGO
+                </a>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-4">
+                <span class="font-mono text-xs text-gray-500">SORT BY:</span>
+                <select
+                    class="bg-black border border-white/20 text-gray-300 text-xs px-2 py-1 rounded focus:border-cyan-500 outline-none font-mono">
+                    <option>LATEST DEPLOYMENT</option>
+                    <option>COMPLEXITY (HIGH-LOW)</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3️⃣ Project Card Grid -->
+    <section class="py-16 min-h-screen">
+        <div class="max-w-7xl mx-auto px-6">
+
+            {% if projects %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for project in projects %}
+                <!-- Project Card -->
+                <a href="#" class="glass-card rounded-xl overflow-hidden group flex flex-col h-full fade-in-up"
+                    style="animation-delay: {{ forloop.counter0|add:1 }}00ms">
+
+                    <!-- Cover Image -->
+                    <div class="h-48 overflow-hidden relative">
+                        {% if project.cover_image %}
+                        <img src="{{ project.cover_image.url }}" alt="{{ project.title }}"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        {% else %}
+                        <div
+                            class="w-full h-full bg-gray-900 flex items-center justify-center text-gray-700 font-mono text-xs">
+                            NO VISUAL SIGNAL</div>
+                        {% endif %}
+
+                        <!-- Integration Indicators -->
+                        <div class="absolute top-3 right-3 flex space-x-1">
+                            {% if project.featured %}
+                            <div class="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" title="Featured System"></div>
+                            {% endif %}
+                            <div class="h-2 w-2 rounded-full bg-green-500" title="System Online"></div>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-6 flex-grow flex flex-col">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3
+                                class="font-scifi text-xl font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-1">
+                                {{ project.title }}
+                            </h3>
+                        </div>
+
+                        <p class="font-inter text-sm text-gray-400 mb-6 line-clamp-3 flex-grow">
+                            {{ project.short_description }}
+                        </p>
+
+                        <!-- Tech Stack Tags -->
+                        <div class="flex flex-wrap gap-2 mt-auto">
+                            {% for tech in project.tech_stack %}
+                            {% if forloop.counter <= 3 %} <span class="tech-tag">{{ tech }}</span>
+                                {% endif %}
+                                {% endfor %}
+                                {% if project.tech_stack|length > 3 %}
+                                <span class="tech-tag opacity-50">+{{ project.tech_stack|length|add:"-3" }}</span>
+                                {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Footer Action -->
+                    <div
+                        class="px-6 py-4 border-t border-white/5 bg-white/[0.01] flex justify-between items-center group-hover:bg-cyan-500/5 transition-colors">
+                        <span class="font-mono text-[10px] text-gray-500 uppercase tracking-widest">View
+                            Architecture</span>
+                        <i
+                            class="fas fa-chevron-right text-cyan-500 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"></i>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Load More (Placeholder) -->
+            <div class="mt-16 text-center">
+                <button
+                    class="px-8 py-3 border border-white/20 text-gray-400 font-mono text-xs hover:border-cyan-500 hover:text-cyan-400 transition-all rounded uppercase tracking-widest">
+                    Load Additional Modules
+                </button>
+            </div>
+
+            {% else %}
+            <!-- Empty State -->
+            <div
+                class="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-xl">
+                <div class="text-6xl text-gray-800 mb-6"><i class="fas fa-folder-open"></i></div>
+                <h3 class="font-scifi text-xl text-gray-500 mb-2">NO MODULES DETECTED</h3>
+                <p class="font-mono text-xs text-gray-600">The system has not initialized projects for this sector yet.
+                </p>
+                <a href="/admin/projects/project/add/"
+                    class="mt-8 px-6 py-2 bg-gray-800 text-gray-300 font-mono text-xs rounded hover:bg-cyan-900 hover:text-cyan-400 transition-colors">
+                    [ADMIN] INITIALIZE FIRST PROJECT
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+    </section>
+
+    <!-- Simple Footer -->
+    <footer class="border-t border-white/5 py-8 text-center bg-black">
+        <div class="font-mono text-[10px] text-gray-600">
+            SYSTEM STATUS: ONLINE | {{ category.name|upper }} MODULE ACTIVE
+        </div>
+    </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,113 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% block page_title %}Dashboard Modules{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- Impact Metrics Section -->
+    <div class="glass-panel rounded-lg overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+            <div>
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-chart-pie text-purple-500"></i> Key Stats
+                </h3>
+                <p class="text-xs text-gray-500">Numbers that show your impact.</p>
+            </div>
+            <a href="{% url 'custom_admin:metric_add' %}"
+                class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-white text-xs font-mono transition-colors">
+                <i class="fas fa-plus"></i> ADD
+            </a>
+        </div>
+        <div class="p-4 space-y-3 flex-1">
+            {% for metric in metrics %}
+            <div
+                class="flex items-center justify-between p-3 rounded bg-white/5 hover:bg-white/10 transition-colors border-l-2 {% if metric.is_active %}border-green-500{% else %}border-gray-500{% endif %}">
+                <div>
+                    <div class="text-white font-bold">{{ metric.title }}</div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wider">{{ metric.description }}</div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-mono text-gray-500">#{{ metric.display_order }}</span>
+                    <a href="{% url 'custom_admin:metric_edit' metric.pk %}"
+                        class="text-cyan-400 hover:text-white px-2 py-1"><i class="fas fa-pen"></i></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Capabilities Section -->
+    <div class="glass-panel rounded-lg overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+            <div>
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-bolt text-cyan-400"></i> Capability Signals
+                </h3>
+                <p class="text-xs text-gray-500">Technical strengths display.</p>
+            </div>
+            <a href="{% url 'custom_admin:capability_add' %}"
+                class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-white text-xs font-mono transition-colors">
+                <i class="fas fa-plus"></i> ADD
+            </a>
+        </div>
+        <div class="p-4 space-y-3 flex-1">
+            {% for cap in capabilities %}
+            <div
+                class="flex items-center justify-between p-3 rounded bg-white/5 hover:bg-white/10 transition-colors border-l-2 {% if cap.is_active %}border-cyan-500{% else %}border-gray-500{% endif %}">
+                <div class="flex-1 mr-4">
+                    <div class="flex justify-between mb-1">
+                        <span class="text-white text-sm">{{ cap.title }}</span>
+                        <span
+                            class="text-cyan-400 text-xs font-mono px-2 py-0.5 rounded bg-cyan-900/30 border border-cyan-500/30">{{
+                            cap.strength_level }}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-mono text-gray-500">#{{ cap.display_order }}</span>
+                    <a href="{% url 'custom_admin:capability_edit' cap.pk %}"
+                        class="text-gray-500 hover:text-white px-2 py-1"><i class="fas fa-pen"></i></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Current Focus Section -->
+    <div class="glass-panel rounded-lg overflow-hidden lg:col-span-2">
+        <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+            <div>
+                <h3 class="font-scifi text-lg text-white flex items-center gap-2">
+                    <i class="fas fa-microscope text-green-400"></i> Current Focus
+                </h3>
+                <p class="text-xs text-gray-500">Current research and development topics.</p>
+            </div>
+            <a href="{% url 'custom_admin:focus_add' %}"
+                class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-white text-xs font-mono transition-colors">
+                <i class="fas fa-plus"></i> ADD
+            </a>
+        </div>
+        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+            {% for area in focus %}
+            <div
+                class="flex items-center justify-between p-3 rounded bg-white/5 hover:bg-white/10 transition-colors border-l-2 {% if area.is_active %}border-green-500{% else %}border-gray-500{% endif %}">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-caret-right text-green-400"></i>
+                        <span class="text-gray-300 font-medium">{{ area.title }}</span>
+                    </div>
+                    {% if area.description %}
+                    <p class="text-xs text-gray-500 ml-6">{{ area.description|truncatechars:50 }}</p>
+                    {% endif %}
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-mono text-gray-500">#{{ area.display_order }}</span>
+                    <a href="{% url 'custom_admin:focus_edit' area.pk %}"
+                        class="text-gray-500 hover:text-white px-2 py-1"><i class="fas fa-pen"></i></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ identity_core.full_name }} | {{ identity_core.profile_title }}</title>
+
+
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Orbitron (Sci-Fi) & Inter (Clean) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        :root {
+
+            /* Dynamic Background Logic - Normalized with |lower */
+
+
+
+            --bg-panel: #0B0F1A;
+
+            --cyan-core: {
+                    {
+                    global_config.primary_color|default: "#00F5FF"
+                }
+            }
+
+            ;
+
+            --purple-core: {
+                    {
+                    global_config.accent_color|default: "#7B61FF"
+                }
+            }
+
+            ;
+
+
+
+            --text-dim: #8892B0;
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ========================= */
+        /* THEME ENGINE (CORRECTED) */
+        /* ========================= */
+
+        body.theme-dark {
+            background: #05070A;
+            color: #E6F1FF;
+        }
+
+        body.theme-gradient {
+            background: #0F172A;
+            color: #E6F1FF;
+        }
+
+        body.theme-minimal {
+            background: #F0F2F5;
+            color: #1A202C;
+        }
+
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        /* Typography */
+        .font-scifi {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(11, 15, 26, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(0, 245, 255, 0.05);
+            border-color: var(--cyan-core);
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.1);
+        }
+
+        /* Utilities */
+        .text-glow {
+            text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+        }
+
+        .border-glow {
+            box-shadow: 0 0 10px rgba(123, 97, 255, 0.3);
+        }
+
+        /* 3D Container */
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            /* Let clicks pass through to content */
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cyan-core);
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-deep);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loader-bar {
+            width: 200px;
+            height: 2px;
+            background: #333;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .loader-progress {
+            width: 0%;
+            height: 100%;
+            background: var(--cyan-core);
+            animation: load 2s ease-out forwards;
+        }
+
+        @keyframes load {
+            100% {
+                width: 100%;
+            }
+        }
+
+        /* Typing Effect */
+        .typing-effect {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid var(--cyan-core);
+            animation: typing 2s steps(20, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0
+            }
+
+            to {
+                width: 100%
+            }
+        }
+
+        @keyframes blink-caret {
+
+            from,
+            to {
+                border-color: transparent
+            }
+
+            50% {
+                border-color: var(--cyan-core);
+            }
+        }
+
+        /* Bot Animations */
+        @keyframes blink {
+
+            0%,
+            90%,
+            100% {
+                transform: scaleY(1);
+            }
+
+            95% {
+                transform: scaleY(0.1);
+            }
+        }
+
+        .animate-blink {
+            animation: blink 4s infinite;
+            transform-origin: center;
+        }
+
+        @keyframes sound {
+
+            0%,
+            100% {
+                height: 4px;
+            }
+
+            50% {
+                height: 12px;
+            }
+        }
+
+        .animate-sound {
+            animation: sound 1s infinite;
+            transform-origin: bottom;
+        }
+
+        .animate-spin-slow {
+            animation: spin 10s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Section Spacing */
+        .section-padding {
+            padding: 120px 0;
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-cyan-500 selection:text-black theme-{{ global_config.background_style|lower }}">
+
+
+    <!-- Loader -->
+    <div id="loader">
+        <h1 class="font-scifi text-2xl tracking-[0.2em] text-cyan-400">INITIALIZING SYSTEM</h1>
+        <div class="loader-bar">
+            <div class="loader-progress"></div>
+        </div>
+    </div>
+
+    <!-- Navigation (Minimal) -->
+    <nav class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center mix-blend-difference">
+        <div class="font-scifi font-bold text-xl tracking-widest text-white">AM.SYS</div>
+        <a href="/admin" class="font-mono text-xs text-gray-400 hover:text-cyan-400 transition-colors">[ ADMIN_ACCESS
+            ]</a>
+    </nav>
+
+    <!-- 1️⃣ Identity Core (Layout: 2-Column Split) -->
+    <section class="min-h-screen w-full flex items-center justify-center relative z-10 px-6 py-20 section-gap">
+
+        <div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+            <!-- LEFT SIDE: Identity Content (Stable & Clean) -->
+            <div class="text-center lg:text-left order-2 lg:order-1 space-y-8" id="identity-content">
+                <!-- Name -->
+                <h1 class="font-scifi text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 tracking-tight opacity-0 translate-y-10 animate-float"
+                    style="animation-duration: 8s;">
+                    {{ identity_core.full_name }}
+                </h1>
+
+                <!-- Role & Philosophy -->
+                <div class="space-y-4 opacity-0 translate-y-10" id="role-line">
+                    {% if identity_core.profile_title %}
+                    <h2 class="font-scifi text-xl md:text-2xl text-cyan-400 tracking-widest uppercase">{{ identity_core.profile_title }}</h2>
+                    {% endif %}
+                    {% if identity_core.degree %}
+                    <h3 class="font-mono text-lg text-purple-400 tracking-wider">{{ identity_core.degree }}</h3>
+                    {% endif %}
+                    <p
+                        class="font-inter text-gray-400 text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 border-l-2 border-purple-500 pl-4">
+                        "{{ identity_core.slogan }}"
+                    </p>
+                </div>
+                <!-- Explore Cue -->
+                <div class="pt-12 opacity-0 translate-y-10" id="scroll-cue">
+                    <p class="font-mono text-xs text-gray-500 mb-4 uppercase tracking-widest animate-pulse">Explore My
+                        System ↓</p>
+                    <div class="w-px h-16 bg-gradient-to-b from-cyan-500 to-transparent mx-auto lg:mx-0"></div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: Visual Identity (Photo OR Bot) -->
+            <div class="flex justify-center lg:justify-end order-1 lg:order-2 opacity-0 scale-90" id="visual-identity">
+
+                {% if identity_core.enable_avatar_mode %}
+                <!-- 🤖 State 2: Speaking Bot Avatar (Forced by Config) -->
+                {% include "core/partials/bot_avatar.html" %}
+
+                {% elif identity_core.profile_image %}
+                <!-- ✅ State 1: Profile Photo -->
+                <div class="relative w-64 h-64 md:w-80 md:h-80 animate-float" style="animation-duration: 6s;">
+                    <!-- Glow Effect -->
+                    <div class="absolute inset-0 bg-cyan-500/20 rounded-full blur-3xl"></div>
+
+                    <!-- Image Container -->
+                    <div
+                        class="relative w-full h-full rounded-full overflow-hidden border-2 border-white/10 shadow-2xl bg-black">
+                        <img src="{{ identity_core.profile_image.url }}" alt="{{ identity_core.full_name }}"
+                            class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                {% else %}
+                <!-- 🤖 State 3: Fallback Bot Avatar -->
+                {% include "core/partials/bot_avatar.html" %}
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- 3D Canvas Background (Still behind everything) -->
+        {% if global_config.enable_3d %}
+        <div id="canvas-container" class="absolute inset-0 pointer-events-none z-0 opacity-50"></div>
+        {% endif %}
+    </section>
+
+    <!-- 2️⃣ System Universe (Interactive 3D Core - Dynamic) -->
+    <section id="system-universe"
+        class="w-full max-w-7xl mx-auto flex flex-col items-center section-gap relative min-h-[700px] justify-center">
+        <div class="absolute top-0 text-center">
+            <h3 class="font-mono text-cyan-400 text-sm tracking-widest uppercase mb-2">/// SYSTEM_ARCHITECTURE_OVERVIEW
+            </h3>
+            <h2 class="font-scifi text-2xl text-white">Dynamic Data Flow</h2>
+        </div>
+
+        <!-- The Universe Container -->
+        <div class="relative w-[600px] h-[600px] flex items-center justify-center">
+
+            <!-- Orbit Rings -->
+            <div class="absolute w-[500px] h-[500px] border border-white/5 rounded-full animate-orbit"
+                style="animation-duration: 60s;"></div>
+            <div class="absolute w-[350px] h-[350px] border border-cyan-500/10 rounded-full animate-orbit"
+                style="animation-direction: reverse; animation-duration: 40s;"></div>
+            <div class="absolute w-[200px] h-[200px] border border-purple-500/10 rounded-full animate-orbit"
+                style="animation-duration: 20s;"></div>
+
+            <!-- 1. Central Core Node (Always First) -->
+            {% for node in system_nodes %}
+            {% if node.is_core %}
+            <div
+                class="absolute z-30 w-40 h-40 rounded-full bg-gradient-to-br from-cyan-900 to-purple-900 flex flex-col items-center justify-center glass-panel shadow-[0_0_80px_rgba(123,97,255,0.4)] animate-float border border-cyan-400/30">
+                <i class="fas fa-brain text-4xl text-cyan-300 mb-2 animate-pulse"></i>
+                <span class="font-scifi text-xs font-bold text-white text-center tracking-widest">{{ node.title
+                    }}</span>
+                <span class="font-mono text-[8px] text-cyan-500 mt-1">STATUS: ACTIVE</span>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+            <!-- 2. Domain Nodes (Orbiting) -->
+            {% for node in system_nodes %}
+            {% if not node.is_core %}
+            <div class="absolute p-4 glass-panel rounded-lg hover:scale-110 transition-transform cursor-pointer group border-l-2 domain-node"
+                data-index="{{ forloop.counter0 }}" style="border-color: {{ node.color }};">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2 h-2 rounded-full animate-ping" style="background-color: {{ node.color }}"></div>
+                    <div>
+                        <span class="font-mono text-xs font-bold text-gray-300 group-hover:text-white block">{{
+                            node.title }}</span>
+                        <span class="font-mono text-[9px] text-gray-500 uppercase">{{ node.slug }}</span>
+                    </div>
+                </div>
+
+                <!-- Hover Tooltip -->
+                <div
+                    class="absolute -top-12 left-0 w-40 bg-black/90 border border-white/10 p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                    <p class="text-[10px] text-gray-300">{{ node.description|default:"System Module Active" }}</p>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+            <script>
+                // Position Nodes via JS to avoid inline style complexity
+                document.querySelectorAll('.domain-node').forEach((node, index) => {
+                    const angle = (index * 90) + 45; // Start at 45deg, increment per node
+                    const radius = 180; // Distance from center in px
+
+                    // Simple trig for circular layout
+                    // Using CSS transforms for cleaner orbiting logic could be better, 
+                    // but let's stick to the inline style replacement request.
+                    // Actually, let's use the transform approach equivalent to the previous inline CSS
+                    node.style.top = '50%';
+                    node.style.left = '50%';
+                    node.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateX(${radius}px) rotate(-${angle}deg)`;
+                });
+            </script>
+
+            <!-- Animated Connections (SVG Overlay) -->
+            <svg class="absolute w-full h-full pointer-events-none overflow-visible opacity-40">
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#00F5FF;stop-opacity:0" />
+                        <stop offset="50%" style="stop-color:#00F5FF;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#7B61FF;stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Static paths for visualization -->
+                <path d="M150,150 Q300,300 300,300" stroke="url(#grad1)" stroke-width="2" fill="none"
+                    class="animate-dash" />
+                <path d="M450,150 Q300,300 300,300" stroke="url(#grad1)" stroke-width="2" fill="none"
+                    class="animate-dash" style="animation-delay: 1s;" />
+                <path d="M300,300 Q150,450 150,450" stroke="#7B61FF" stroke-width="2" fill="none" stroke-dasharray="5,5"
+                    class="animate-flow" />
+            </svg>
+        </div>
+
+        <div class="mt-8 font-mono text-[10px] text-gray-600 animate-pulse">
+            /// RENDERING REAL-TIME SYSTEM MODEL
+        </div>
+    </section>
+
+    <!-- 3️⃣ Project Categories -->
+    <section id="projects" class="w-full section-padding z-20 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mb-16 border-b border-white/10 pb-6 flex justify-between items-end">
+                <div>
+                    <h2 class="font-mono text-purple-400 text-sm mb-2">/// MODULES</h2>
+                    <h3 class="font-scifi text-3xl font-bold">Command Center Modules</h3>
+                </div>
+                <div class="hidden md:block font-mono text-xs text-gray-500">SELECT MODULE TO ACTIVATE</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for cat in categories %}
+                <a href="#" class="glass-card p-8 rounded-xl group relative overflow-hidden block">
+                    <div class="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                        <i
+                            class="fas fa-arrow-right -rotate-45 group-hover:rotate-0 transition-transform text-cyan-400"></i>
+                    </div>
+
+                    <div class="mb-6 text-4xl text-gray-600 group-hover:text-cyan-400 transition-colors">
+                        {% if "IoT" in cat.name %}<i class="fas fa-satellite-dish"></i>
+                        {% elif "Web" in cat.name %}<i class="fas fa-globe"></i>
+                        {% elif "AI" in cat.name %}<i class="fas fa-brain"></i>
+                        {% elif "Desktop" in cat.name %}<i class="fas fa-desktop"></i>
+                        {% else %}<i class="fas fa-server"></i>{% endif %}
+                    </div>
+
+                    <h4 class="font-scifi text-xl font-bold mb-2 group-hover:text-white transition-colors">{{ cat.name
+                        }}</h4>
+                    <p class="text-sm text-gray-400 font-light mb-4">{{ cat.description }}</p>
+
+                    <div
+                        class="font-mono text-[10px] text-cyan-500/50 uppercase tracking-widest group-hover:text-cyan-400">
+                        // ACCESS_GRANTED
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- 4️⃣ Capability Signals -->
+    <section class="section-padding bg-black/30 z-20 relative">
+        <div class="max-w-4xl mx-auto px-6">
+            <h2 class="font-scifi text-2xl text-center mb-12">SYSTEM CAPABILITIES</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                {% for cap in capabilities %}
+                <div
+                    class="flex items-center justify-between border-b border-white/5 pb-2 group hover:border-cyan-500/30 transition-colors">
+                    <span class="font-inter text-gray-300 group-hover:text-white transition-colors">{{ cap.title
+                        }}</span>
+                    <span class="font-mono text-xs transition-colors
+                        {% if cap.strength_level == 'High' %}text-cyan-400
+                        {% elif cap.strength_level == 'Medium' %}text-purple-400
+                        {% else %}text-gray-500{% endif %}">
+                        {% if cap.strength_level == 'High' %}→ HIGH
+                        {% elif cap.strength_level == 'Medium' %}→ NORMAL
+                        {% else %}→ BASE{% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- 5️⃣ Live System & 7️⃣ Current Focus (Combined Panel) -->
+    <section class="section-padding z-20 relative">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="glass-panel rounded-2xl p-1 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-12">
+
+                <!-- Live System -->
+                <div class="relative">
+                    <div class="absolute -top-3 -left-3">
+                        <span class="relative flex h-3 w-3">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                    </div>
+                    <h3 class="font-mono text-xs text-gray-500 mb-4">/// ACTIVE_SYSTEM_STATUS</h3>
+                    <h2 class="font-scifi text-2xl font-bold text-white mb-2">{{ live_system.title }}</h2>
+                    <p class="text-sm text-gray-400 mb-6">{{ live_system.description }}</p>
+                    <div class="h-1 w-full bg-gray-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-green-500 animate-pulse w-2/3"></div>
+                    </div>
+                </div>
+
+                <!-- Current Focus -->
+                <div class="border-l border-white/10 pl-0 md:pl-12">
+                    <h3 class="font-mono text-xs text-gray-500 mb-4">/// RESEARCH_VECTORS</h3>
+                    <ul class="space-y-3">
+                        {% for item in focus_items %}
+                        <li class="flex items-center text-sm text-gray-300">
+                            <i class="fas fa-caret-right text-purple-500 mr-3"></i>
+                            {{ item.title }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 6️⃣ Impact Metrics -->
+    <section class="py-12 border-y border-white/5 bg-white/[0.02] z-20 relative">
+        <div class="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {% for metric in impact_metrics %}
+            <div>
+                <div class="font-scifi text-3xl font-bold text-white mb-1">{{ metric.title }}</div>
+                <div class="font-mono text-[10px] text-gray-500 uppercase tracking-widest">{{ metric.description }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- 8️⃣ Contact Action -->
+    <section class="h-screen w-full flex flex-col items-center justify-center relative z-20 text-center px-6">
+        <h2 class="font-mono text-cyan-500 text-sm mb-6">/// TRANSMISSION_LINK_READY</h2>
+        <h1 class="font-scifi text-5xl md:text-7xl font-bold text-white mb-8">INITIATE CONNECTION?</h1>
+
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6">
+            <a href="mailto:{{ global_config.email }}"
+                class="group px-8 py-4 bg-cyan-500/10 border border-cyan-500 rounded hover:bg-cyan-500 transition-all duration-300">
+                <span class="font-mono font-bold text-cyan-400 group-hover:text-black">SEND SIGNAL</span>
+            </a>
+
+            <a href="{{ global_config.github_url }}"
+                class="group px-8 py-4 bg-transparent border border-white/20 rounded hover:border-white transition-all duration-300">
+                <span class="font-mono font-bold text-gray-300 group-hover:text-white">GITHUB</span>
+            </a>
+
+            <a href="{{ global_config.linkedin_url }}"
+                class="group px-8 py-4 bg-transparent border border-white/20 rounded hover:border-white transition-all duration-300">
+                <span class="font-mono font-bold text-gray-300 group-hover:text-white">LINKEDIN</span>
+            </a>
+
+            {% if global_config.resume_file %}
+            <a href="{{ global_config.resume_file.url }}"
+                class="group px-8 py-4 bg-transparent border border-purple-500/50 rounded hover:bg-purple-500/20 transition-all duration-300">
+                <span class="font-mono font-bold text-purple-400 group-hover:text-purple-200">RESUME_V1.pdf</span>
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="absolute bottom-6 font-mono text-[10px] text-gray-600">
+            SYSTEM STATUS: ONLINE | {{ identity_core.full_name|upper }} PORTFOLIO | V2.0
+        </div>
+    </section>
+
+    <!-- THREE.JS SCRIPT -->
+    <script>
+        // Global Config Values passed from Django
+        // Fix: Removed spaces after colons in default and yesno filters
+        // const ANIMATION_SPEED = {{ global_config.animation_speed|default:1 }};   
+        // const IS_3D_ENABLED = {{ global_config.enable_3d|yesno:"true,false" }};
+         const ANIMATION_SPEED = {{ global_config.animation_speed|default:1 }};
+        const IS_3D_ENABLED = {{ global_config.enable_3d|yesno:"true,false" }};
+
+        // System Universe - Three.js Implementation
+        const initThreeJS = () => {
+            if (!IS_3D_ENABLED) return; // Exit if 3D is disabled by config
+
+            const container = document.getElementById('canvas-container');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+
+            // Fog for depth
+            scene.fog = new THREE.FogExp2(0x05070a, 0.002);
+
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 30;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 700;
+            const posArray = new Float32Array(particlesCount * 3);
+
+            for (let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 60; // Spread
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.1,
+                color: 0x00F5FF,
+                transparent: true,
+                opacity: 0.8,
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+
+            // Central Core (Wireframe Sphere)
+            const coreGeometry = new THREE.IcosahedronGeometry(4, 1);
+            const coreMaterial = new THREE.MeshBasicMaterial({
+                color: 0x7B61FF,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.3
+            });
+            const core = new THREE.Mesh(coreGeometry, coreMaterial);
+            scene.add(core);
+
+            // Inner Core (Solid Glow)
+            const innerCoreGeo = new THREE.SphereGeometry(2, 32, 32);
+            const innerCoreMat = new THREE.MeshBasicMaterial({
+                color: 0x00F5FF,
+                transparent: true,
+                opacity: 0.1
+            });
+            const innerCore = new THREE.Mesh(innerCoreGeo, innerCoreMat);
+            scene.add(innerCore);
+
+            // Floating Geometry Rings
+            const ringGeo = new THREE.TorusGeometry(12, 0.05, 16, 100);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.3 });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2;
+            scene.add(ring);
+
+            // Animation Loop
+            let mouseX = 0;
+            let mouseY = 0;
+
+            document.addEventListener('mousemove', (event) => {
+                mouseX = event.clientX / window.innerWidth - 0.5;
+                mouseY = event.clientY / window.innerHeight - 0.5;
+            });
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+
+                // Rotate Particles
+                particlesMesh.rotation.y += 0.0005 * ANIMATION_SPEED;
+                particlesMesh.rotation.x += 0.0002 * ANIMATION_SPEED;
+
+                // Rotate Core
+                core.rotation.y -= 0.002 * ANIMATION_SPEED;
+                core.rotation.x -= 0.002 * ANIMATION_SPEED;
+
+                // Rotate Ring
+                ring.rotation.z += 0.001 * ANIMATION_SPEED;
+                ring.rotation.x = (Math.PI / 2) + (mouseY * 0.5);
+                ring.rotation.y = mouseX * 0.5;
+
+                // Camera Parallax
+                camera.position.x += (mouseX * 5 - camera.position.x) * 0.05;
+                camera.position.y += (-mouseY * 5 - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+
+                renderer.render(scene, camera);
+            };
+
+            animate();
+
+            // Handle Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        // Text Animations with GSAP
+        const initAnimations = () => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Identity Reveal (New Layout)
+            const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 1 } });
+
+            tl.to("#loader", { opacity: 0, duration: 0.5, onComplete: () => document.getElementById("loader").style.display = "none" })
+                .to("#identity-content h1", { opacity: 1, y: 0 })
+                .to("#role-line", { opacity: 1, y: 0 }, "-=0.5")
+                .to("#scroll-cue", { opacity: 1, y: 0 }, "-=0.5")
+                .to("#visual-identity", { opacity: 1, scale: 1, duration: 1.5, ease: "elastic.out(1, 0.5)" }, "-=1");
+        };
+
+        // Init
+        window.addEventListener('DOMContentLoaded', () => {
+            initThreeJS();
+            setTimeout(initAnimations, 2000); // Simulate system boot
+        });
+    </script>
+</body>
+
+</html>

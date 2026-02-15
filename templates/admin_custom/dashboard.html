@@ -1,0 +1,218 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% block page_title %}Admin Overview{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+    <!-- 1. Portfolio Status Summary (Top Row) -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- Projects -->
+        <div class="glass-panel p-4 rounded-lg border-l-4 border-cyan-400">
+            <div class="text-gray-400 text-xs uppercase tracking-wider">Projects</div>
+            <div class="text-3xl font-scifi font-bold text-white mt-1">{{ stats.total_projects }}</div>
+            <div class="text-xs text-cyan-400 mt-2">Active</div>
+        </div>
+        <!-- Categories -->
+        <div class="glass-panel p-4 rounded-lg border-l-4 border-purple-500">
+            <div class="text-gray-400 text-xs uppercase tracking-wider">Categories</div>
+            <div class="text-3xl font-scifi font-bold text-white mt-1">{{ stats.total_categories }}</div>
+            <div class="text-xs text-purple-400 mt-2">Defined</div>
+        </div>
+        <!-- Nodes -->
+        <div class="glass-panel p-4 rounded-lg border-l-4 border-green-500">
+            <div class="text-gray-400 text-xs uppercase tracking-wider">Active Nodes</div>
+            <div class="text-3xl font-scifi font-bold text-white mt-1">{{ stats.active_nodes }}</div>
+            <div class="text-xs text-green-400 mt-2">System Online</div>
+        </div>
+        <!-- Connections -->
+        <div class="glass-panel p-4 rounded-lg border-l-4 border-yellow-500">
+            <div class="text-gray-400 text-xs uppercase tracking-wider">Connections</div>
+            <div class="text-3xl font-scifi font-bold text-white mt-1">{{ stats.active_connections }}</div>
+            <div class="text-xs text-yellow-400 mt-2">Data Flows</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- 2. System Universe Status -->
+        <div class="glass-panel p-6 rounded-lg">
+            <h3 class="font-scifi text-lg text-white mb-4 border-b border-white/5 pb-2">System Universe</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-sm">Core Node</span>
+                    {% if system_status.core_node %}
+                    <span
+                        class="px-2 py-1 rounded bg-purple-500/20 text-purple-300 text-xs border border-purple-500/30">
+                        {{ system_status.core_node.title }}
+                    </span>
+                    {% else %}
+                    <span class="text-red-400 text-xs font-bold">MISSING!</span>
+                    {% endif %}
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-sm">Domain Nodes</span>
+                    <span class="text-white font-mono">{{ system_status.domain_nodes }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-sm">Status</span>
+                    {% if system_status.warnings %}
+                    <span class="text-red-400 text-xs">⚠ Check Warnings</span>
+                    {% else %}
+                    <span class="text-green-400 text-xs">✔ Systems Nominal</span>
+                    {% endif %}
+                </div>
+                {% if system_status.warnings %}
+                <div class="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-300">
+                    <ul class="list-disc pl-4 space-y-1">
+                        {% for warning in system_status.warnings %}
+                        <li>{{ warning }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 3. Project Overview -->
+        <div class="glass-panel p-6 rounded-lg">
+            <h3 class="font-scifi text-lg text-white mb-4 border-b border-white/5 pb-2">Project Overview</h3>
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    {% for cat in project_overview.by_category %}
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">{{ cat.name }}</span>
+                        <span class="text-white font-mono">{{ cat.project_count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if project_overview.missing_data > 0 %}
+                <div class="flex items-center gap-2 text-yellow-400 text-xs mt-4 pt-4 border-t border-white/5">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>{{ project_overview.missing_data }} projects missing details</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 4. Category Health -->
+        <div class="glass-panel p-6 rounded-lg">
+            <h3 class="font-scifi text-lg text-white mb-4 border-b border-white/5 pb-2">Category Health</h3>
+            <div class="space-y-2">
+                {% for cat in category_overview.all %}
+                <div class="flex justify-between items-center text-sm p-2 rounded hover:bg-white/5 transition-colors">
+                    <span class="text-gray-300">{{ cat.name }}</span>
+                    {% if cat.project_count == 0 %}
+                    <span class="text-red-400 text-xs font-bold border border-red-500/30 px-2 rounded">EMPTY</span>
+                    {% else %}
+                    <span class="text-green-400 text-xs font-mono">{{ cat.project_count }} Projects</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- 5. Dashboard Content -->
+        <div class="glass-panel p-6 rounded-lg">
+            <h3 class="font-scifi text-lg text-white mb-4 border-b border-white/5 pb-2">Identity & Content</h3>
+
+            <!-- Identity Preview -->
+            <div class="flex items-center gap-4 mb-6 pb-6 border-b border-white/5">
+                <div class="w-12 h-12 rounded-full bg-gray-800 overflow-hidden border border-cyan-500/30">
+                    {% if identity_core.enable_avatar_mode %}
+                    <div class="w-full h-full flex items-center justify-center bg-cyan-900/20 text-cyan-400"><i
+                            class="fas fa-robot"></i></div>
+                    {% elif identity_core.profile_image %}
+                    <img src="{{ identity_core.profile_image.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gray-700 text-gray-400"><i
+                            class="fas fa-user"></i></div>
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="text-white font-bold text-sm">{{ identity_core.full_name|default:"Not Configured" }}
+                    </div>
+                    <div class="text-cyan-400 text-xs">{{ identity_core.profile_title|default:"-" }}</div>
+                </div>
+                <a href="{% url 'custom_admin:identity_core' %}"
+                    class="ml-auto text-xs text-gray-500 hover:text-white"><i class="fas fa-pen"></i></a>
+            </div>
+
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-sm">Live System</span>
+                    {% if live_system.is_active %}
+                    <span class="text-green-400 text-xs font-mono">ONLINE</span>
+                    {% else %}
+                    <span class="text-gray-500 text-xs font-mono">OFFLINE</span>
+                    {% endif %}
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-sm">Impact Metrics</span>
+                    <span class="text-white font-mono">{{ content_status.metrics }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-sm">Capabilities</span>
+                    <span class="text-white font-mono">{{ content_status.capabilities }} items</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-sm">Current Focus</span>
+                    <span class="text-white font-mono">{{ content_status.focus_areas }} items</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Global Config -->
+        <div class="glass-panel p-6 rounded-lg">
+            <h3 class="font-scifi text-lg text-white mb-4 border-b border-white/5 pb-2">Global Config</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-sm">3D Mode</span>
+                    <span
+                        class="text-xs font-mono {% if global_config.enable_3d %}text-green-400{% else %}text-gray-500{% endif %}">
+                        {{ global_config.enable_3d|yesno:"Enabled,Disabled" }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-sm">Anim Speed</span>
+                    <span class="text-white font-mono text-xs">
+                        {{ global_config.animation_speed|default:"1.0" }}x
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Quick Actions (VERY IMPORTANT) -->
+        <div class="glass-panel p-6 rounded-lg border border-cyan-500/30 bg-cyan-900/10">
+            <h3 class="font-scifi text-lg text-cyan-400 mb-4 flex items-center gap-2">
+                <i class="fas fa-bolt"></i> Quick Command
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+                <a href="{% url 'custom_admin:project_add' %}"
+                    class="flex flex-col items-center justify-center p-3 rounded bg-black/40 border border-white/10 hover:border-cyan-400/50 hover:bg-cyan-900/20 transition-all group">
+                    <i class="fas fa-plus text-cyan-400 group-hover:scale-110 transition-transform mb-1"></i>
+                    <span class="text-[10px] uppercase text-gray-400">Project</span>
+                </a>
+                <a href="{% url 'custom_admin:category_add' %}"
+                    class="flex flex-col items-center justify-center p-3 rounded bg-black/40 border border-white/10 hover:border-purple-400/50 hover:bg-purple-900/20 transition-all group">
+                    <i class="fas fa-folder-plus text-purple-400 group-hover:scale-110 transition-transform mb-1"></i>
+                    <span class="text-[10px] uppercase text-gray-400">Category</span>
+                </a>
+                <a href="{% url 'custom_admin:tech_stack' %}"
+                    class="flex flex-col items-center justify-center p-3 rounded bg-black/40 border border-white/10 hover:border-green-400/50 hover:bg-green-900/20 transition-all group">
+                    <i class="fas fa-layer-group text-green-400 group-hover:scale-110 transition-transform mb-1"></i>
+                    <span class="text-[10px] uppercase text-gray-400">Stack</span>
+                </a>
+                <a href="{% url 'custom_admin:global_settings' %}"
+                    class="flex flex-col items-center justify-center p-3 rounded bg-black/40 border border-white/10 hover:border-yellow-400/50 hover:bg-yellow-900/20 transition-all group">
+                    <i class="fas fa-cog text-yellow-400 group-hover:scale-110 transition-transform mb-1"></i>
+                    <span class="text-[10px] uppercase text-gray-400">Config</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load nexus_admin_extras %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+
+    <!-- Top Section: Form -->
+    <div class="glass-panel p-6 rounded-lg">
+        <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+            <div>
+                <h2 class="text-xl font-bold text-white"><i class="fas fa-id-card text-cyan-400 mr-2"></i>Identity Core
+                </h2>
+                <p class="text-gray-400 text-sm mt-1">Manage your public profile information.</p>
+            </div>
+            <button type="submit" form="identity-form"
+                class="px-6 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-medium shadow-lg shadow-cyan-500/20 transition-all text-sm">
+                Save Updates
+            </button>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" id="identity-form" class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <ul class="list-disc list-inside text-xs text-red-400 space-y-1">
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li><span class="font-bold capitalize">{{ field }}:</span> {{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left: Text Fields -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                        {% styled_field form.full_name %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Profile Title</label>
+                        {% styled_field form.profile_title %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Degree / Qualification</label>
+                        {% styled_field form.degree %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Explore CTA Text</label>
+                        {% styled_field form.explore_cta_text %}
+                        <p class="text-xs text-gray-500 mt-1">Button text for main call-to-action.</p>
+                    </div>
+                </div>
+
+                <!-- Right: Visuals -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Profile Image</label>
+                        {% styled_field form.profile_image %}
+                        {% if item.profile_image %}
+                        <div class="mt-2 text-xs text-gray-500">
+                            Current: <a href="{{ item.profile_image.url }}" target="_blank"
+                                class="text-cyan-400 hover:underline">View Image</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="pt-6">
+                        <div class="flex items-center gap-3 p-4 bg-white/5 rounded border border-white/10">
+                            {% styled_field form.enable_avatar_mode %}
+                            <div>
+                                <label for="{{ form.enable_avatar_mode.id_for_label }}"
+                                    class="text-sm font-medium text-white cursor-pointer select-none">Enable 3D Avatar
+                                    Mode</label>
+                                <p class="text-xs text-gray-500 mt-1">If enabled, overrides static image with 3D
+                                    assistant.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slogan (Full Width) -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Personal Slogan / Bio</label>
+                {% styled_field form.slogan %}
+                <p class="text-xs text-gray-500 mt-1">Appears below your title on the main dashboard.</p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Live Preview Section -->
+    <div class="border-t border-white/10 pt-8">
+        <h3 class="text-sm uppercase tracking-wider text-gray-500 font-mono mb-4 text-center">Live Usage Preview</h3>
+
+        <div class="max-w-md mx-auto bg-black border border-white/10 rounded-xl overflow-hidden relative group">
+            <!-- Mock Sidebar Header -->
+            <div class="p-6 flex flex-col items-center text-center relative z-10">
+                <!-- Avatar Circle -->
+                <div class="w-24 h-24 rounded-full border-2 border-cyan-500/30 p-1 mb-4 relative">
+                    <div
+                        class="w-full h-full rounded-full bg-gray-800 overflow-hidden flex items-center justify-center">
+                        {% if item.enable_avatar_mode %}
+                        <i class="fas fa-robot text-4xl text-cyan-400 animate-pulse"></i>
+                        {% elif item.profile_image %}
+                        <img src="{{ item.profile_image.url }}" class="w-full h-full object-cover">
+                        {% else %}
+                        <i class="fas fa-user text-4xl text-gray-600"></i>
+                        {% endif %}
+                    </div>
+                    <!-- Status Dot -->
+                    <div class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-black">
+                    </div>
+                </div>
+
+                <!-- Text -->
+                <h3 class="text-white font-bold text-lg leading-tight">{{ item.full_name|default:"Your Name" }}</h3>
+                <p class="text-cyan-400 text-sm font-medium mt-1">{{ item.profile_title|default:"Job Title" }}</p>
+                {% if item.degree %}
+                <p class="text-purple-400 text-xs font-mono mt-1">{{ item.degree }}</p>
+                {% endif %}
+
+                <div class="mt-4 px-4 py-3 bg-white/5 rounded-lg border border-white/5">
+                    <p class="text-gray-400 text-xs italic leading-relaxed">
+                        "{{ item.slogan|default:"Your personal philosophy or mission statement goes here." }}"
+                    </p>
+                </div>
+
+                <div class="mt-4">
+                    <button
+                        class="px-4 py-2 bg-cyan-500/10 border border-cyan-500/50 rounded text-cyan-400 text-xs uppercase tracking-wider hover:bg-cyan-500/20 transition-colors">
+                        {{ item.explore_cta_text|default:"Explore System" }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Background Decoration -->
+            <div
+                class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-cyan-900/20 to-transparent pointer-events-none">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

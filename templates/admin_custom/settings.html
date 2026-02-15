@@ -1,0 +1,212 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load nexus_admin_extras %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-8 pb-20">
+
+    <!-- Header -->
+    <div class="flex items-end justify-between border-b border-white/5 pb-6">
+        <div>
+            <h1 class="font-scifi text-3xl font-bold text-white tracking-wider">{{ page_title }}</h1>
+            <p class="text-gray-400 mt-2 font-mono text-xs uppercase tracking-widest text-cyan-500/70">/// {{
+                page_description }}</p>
+        </div>
+        <div class="font-mono text-[10px] text-gray-600">SYSTEM_CONFIG_V3.1</div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="bg-red-500/10 border border-red-500/50 p-4 rounded-lg animate-pulse">
+            <p class="font-mono text-red-400 font-bold mb-2">ERROR_LOG_DETECTED:</p>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <!-- 1️⃣ 3D Settings -->
+        <div class="glass-panel p-1 rounded-xl overflow-hidden group">
+            <details open class="group">
+                <summary
+                    class="flex items-center justify-between cursor-pointer list-none p-6 bg-white/5 hover:bg-white/10 transition-colors">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+                        <h2 class="font-scifi text-lg text-cyan-400 tracking-widest">3D_BEHAVIOR_CONTROLS</h2>
+                    </div>
+                    <span class="transition-transform duration-300 group-open:rotate-180">
+                        <i class="fas fa-chevron-down text-cyan-500"></i>
+                    </span>
+                </summary>
+
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-black/20 text-white">
+                    <!-- Enable 3D -->
+                    <div class="col-span-1 md:col-span-2 lg:col-span-3 pb-4 border-b border-white/5">
+                        <label class="flex items-center space-x-4 cursor-pointer">
+                            {{ form.enable_3d }}
+                            <div>
+                                <span class="block text-sm font-bold text-white uppercase tracking-wider">Enable 3D
+                                    Visualization</span>
+                                <span class="text-xs text-gray-500">Render WebGL System Universe (Disable for
+                                    performance mode)</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Animation Speed -->
+                    <div>
+                        <label class="block text-gray-400 text-[10px] font-mono uppercase mb-2">Animation Speed (0.5 -
+                            2.0)</label>
+                        {{ form.animation_speed }}
+                        <div class="w-full bg-gray-700 h-1 mt-2 rounded overflow-hidden">
+                            <div class="bg-cyan-500 h-full w-1/2"></div> <!-- Visual indicator static for now -->
+                        </div>
+                    </div>
+
+                    <!-- Max Nodes -->
+                    <div>
+                        <label class="block text-gray-400 text-[10px] font-mono uppercase mb-2">Max Nodes Limit (Max
+                            10)</label>
+                        {{ form.max_nodes_limit }}
+                    </div>
+                </div>
+            </details>
+        </div>
+
+        <!-- 2️⃣ Theme Settings -->
+        <div class="glass-panel p-1 rounded-xl overflow-hidden group">
+            <details class="group">
+                <summary
+                    class="flex items-center justify-between cursor-pointer list-none p-6 bg-white/5 hover:bg-white/10 transition-colors">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                        <h2 class="font-scifi text-lg text-purple-400 tracking-widest">VISUAL_THEME_ENGINE</h2>
+                    </div>
+                    <span class="transition-transform duration-300 group-open:rotate-180">
+                        <i class="fas fa-chevron-down text-purple-500"></i>
+                    </span>
+                </summary>
+
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 bg-black/20 text-white">
+                    <div>
+                        <label class="block text-gray-400 text-[10px] font-mono uppercase mb-2">Primary Accent
+                            Color</label>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
+                                {{ form.primary_color }}
+                            </div>
+                            <span class="font-mono text-xs text-gray-500">{{ form.primary_color.value }}</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 text-[10px] font-mono uppercase mb-2">Secondary Accent
+                            Color</label>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded border border-white/20 overflow-hidden relative">
+                                {{ form.accent_color }}
+                            </div>
+                            <span class="font-mono text-xs text-gray-500">{{ form.accent_color.value }}</span>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-400 text-[10px] font-mono uppercase mb-2">Background Style</label>
+                        {{ form.background_style }}
+                    </div>
+                </div>
+            </details>
+        </div>
+
+        <!-- 3️⃣ Contact Settings -->
+        <div class="glass-panel p-1 rounded-xl overflow-hidden group">
+            <details class="group">
+                <summary
+                    class="flex items-center justify-between cursor-pointer list-none p-6 bg-white/5 hover:bg-white/10 transition-colors">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <h2 class="font-scifi text-lg text-green-400 tracking-widest">SIGNAL_TRANSMISSION_LINKS</h2>
+                    </div>
+                    <span class="transition-transform duration-300 group-open:rotate-180">
+                        <i class="fas fa-chevron-down text-green-500"></i>
+                    </span>
+                </summary>
+
+                <div class="p-6 space-y-6 bg-black/20 text-white">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="relative group">
+                            <label class="block text-gray-400 text-[10px] font-mono uppercase mb-2"><i
+                                    class="fab fa-github mr-2"></i>GitHub URL</label>
+                            {{ form.github_url }}
+                        </div>
+                        <div class="relative group">
+                            <label class="block text-gray-400 text-[10px] font-mono uppercase mb-2"><i
+                                    class="fab fa-linkedin mr-2"></i>LinkedIn URL</label>
+                            {{ form.linkedin_url }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-[10px] font-mono uppercase mb-2"><i
+                                class="fas fa-envelope mr-2"></i>Contact Email</label>
+                        {{ form.email }}
+                    </div>
+                </div>
+            </details>
+        </div>
+
+        <!-- 4️⃣ Resume -->
+        <div class="glass-panel p-1 rounded-xl overflow-hidden group">
+            <details class="group">
+                <summary
+                    class="flex items-center justify-between cursor-pointer list-none p-6 bg-white/5 hover:bg-white/10 transition-colors">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <h2 class="font-scifi text-lg text-yellow-400 tracking-widest">DATA_DOWNLOAD_PORT</h2>
+                    </div>
+                    <span class="transition-transform duration-300 group-open:rotate-180">
+                        <i class="fas fa-chevron-down text-yellow-500"></i>
+                    </span>
+                </summary>
+
+                <div class="p-6 bg-black/20 border-t border-white/5 text-white">
+                    <div class="flex items-center space-x-6">
+                        <div class="flex-1">
+                            <label class="block text-gray-400 text-[10px] font-mono uppercase mb-2">Upload Resume
+                                (PDF)</label>
+                            {{ form.resume_file }}
+                        </div>
+                        {% if form.instance.resume_file %}
+                        <div class="px-6 py-3 rounded border border-cyan-500/30 bg-cyan-500/10">
+                            <a href="{{ form.instance.resume_file.url }}" target="_blank"
+                                class="flex items-center text-cyan-400 hover:text-white transition-colors">
+                                <i class="fas fa-file-pdf mr-3 text-2xl"></i>
+                                <div>
+                                    <div class="font-mono text-xs font-bold">CURRENT_FILE_LOADED</div>
+                                    <div class="text-[10px] uppercase opacity-70">Click to View</div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </details>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="flex items-center gap-4 justify-end pt-6">
+            <a href="{% url 'custom_admin:dashboard' %}"
+                class="px-6 py-3 rounded border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors text-sm font-mono uppercase tracking-widest">
+                Cancel
+            </a>
+            <button type="submit"
+                class="group relative px-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-mono font-bold tracking-widest uppercase rounded shadow-[0_0_20px_rgba(0,245,255,0.3)] transition-all overflow-hidden">
+                <span class="relative z-10">[ UPDATE_SYSTEM_CONFIG ]</span>
+                <div
+                    class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                </div>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

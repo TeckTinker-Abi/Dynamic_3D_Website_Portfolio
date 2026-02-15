@@ -1,0 +1,208 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% block page_title %}System Architecture{% endblock %}
+
+{% block content %}
+<!-- Nodes Section -->
+<div class="glass-panel rounded-lg overflow-hidden">
+    <div
+        class="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/[0.02]">
+        <div>
+            <h3 class="font-scifi text-lg text-white">System Nodes</h3>
+            <p class="text-xs text-gray-500">Components of your digital universe.</p>
+        </div>
+
+        <!-- Node Controls -->
+        <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+            <!-- Search -->
+            <form method="get" class="relative">
+                <!-- Preserve other filters -->
+                <input type="hidden" name="node_filter" value="{{ node_filter }}">
+                <input type="hidden" name="conn_search" value="{{ conn_search }}">
+                <input type="hidden" name="conn_filter" value="{{ conn_filter }}">
+
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                <input type="text" name="node_search" value="{{ node_search }}" placeholder="Search nodes..."
+                    class="pl-8 pr-4 py-1.5 rounded bg-black/30 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500 w-full md:w-48 placeholder-gray-600">
+            </form>
+
+            <!-- Filter -->
+            <div class="flex bg-black/30 rounded p-1 border border-white/10">
+                <a href="?node_filter=all&node_search={{ node_search }}&conn_search={{ conn_search }}&conn_filter={{ conn_filter }}"
+                    class="px-3 py-1 text-[10px] rounded transition-colors {% if node_filter == 'all' %}bg-white/10 text-white{% else %}text-gray-500 hover:text-gray-300{% endif %}">All</a>
+                <a href="?node_filter=active&node_search={{ node_search }}&conn_search={{ conn_search }}&conn_filter={{ conn_filter }}"
+                    class="px-3 py-1 text-[10px] rounded transition-colors {% if node_filter == 'active' %}bg-green-500/20 text-green-400{% else %}text-gray-500 hover:text-green-400{% endif %}">Active</a>
+                <a href="?node_filter=core&node_search={{ node_search }}&conn_search={{ conn_search }}&conn_filter={{ conn_filter }}"
+                    class="px-3 py-1 text-[10px] rounded transition-colors {% if node_filter == 'core' %}bg-purple-500/20 text-purple-400{% else %}text-gray-500 hover:text-purple-400{% endif %}">Core</a>
+            </div>
+
+            <a href="{% url 'custom_admin:node_add' %}"
+                class="px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-colors shadow-lg shadow-cyan-900/20 whitespace-nowrap">
+                <i class="fas fa-plus mr-1"></i> Add Node
+            </a>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-gray-400">
+            <thead class="bg-white/5 text-gray-200 font-mono text-xs uppercase">
+                <tr>
+                    <th class="px-6 py-4">Component</th>
+                    <th class="px-6 py-4">Role</th>
+                    <th class="px-6 py-4">Position</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% for node in nodes %}
+                <tr class="hover:bg-white/[0.02] transition-colors group">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 rounded-full shadow-lg" style="background-color: {{ node.color }};">
+                            </div>
+                            <span class="text-white font-medium">{{ node.title }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if node.is_core %}
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 tracking-wider">
+                            CORE SYSTEM
+                        </span>
+                        {% else %}
+                        <span class="text-gray-500 text-xs">Module</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 font-mono text-xs">Index {{ node.order_index }}</td>
+                    <td class="px-6 py-4">
+                        {% if node.is_active %}
+                        <span class="flex items-center gap-2 text-xs text-green-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Online
+                        </span>
+                        {% else %}
+                        <span class="flex items-center gap-2 text-xs text-gray-500">
+                            <span class="w-1.5 h-1.5 rounded-full bg-gray-600"></span> Offline
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="{% url 'custom_admin:node_edit' node.pk %}"
+                            class="px-3 py-1 rounded border border-white/10 hover:bg-white/10 text-cyan-400 hover:text-white transition-colors text-xs">
+                            Edit
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        No nodes found matching filters.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Connections Section -->
+<div class="glass-panel rounded-lg overflow-hidden mt-8">
+    <div
+        class="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/[0.02]">
+        <div>
+            <h3 class="font-scifi text-lg text-white">Neural Pathways</h3>
+            <p class="text-xs text-gray-500">Data flow connections between system nodes.</p>
+        </div>
+
+        <!-- Connection Controls -->
+        <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+            <!-- Search -->
+            <form method="get" class="relative">
+                <input type="hidden" name="conn_filter" value="{{ conn_filter }}">
+                <input type="hidden" name="node_search" value="{{ node_search }}">
+                <input type="hidden" name="node_filter" value="{{ node_filter }}">
+
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                <input type="text" name="conn_search" value="{{ conn_search }}" placeholder="Search connections..."
+                    class="pl-8 pr-4 py-1.5 rounded bg-black/30 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 w-full md:w-48 placeholder-gray-600">
+            </form>
+
+            <!-- Filter -->
+            <div class="flex bg-black/30 rounded p-1 border border-white/10">
+                <a href="?conn_filter=all&conn_search={{ conn_search }}&node_search={{ node_search }}&node_filter={{ node_filter }}"
+                    class="px-3 py-1 text-[10px] rounded transition-colors {% if conn_filter == 'all' %}bg-white/10 text-white{% else %}text-gray-500 hover:text-gray-300{% endif %}">All</a>
+                <a href="?conn_filter=data&conn_search={{ conn_search }}&node_search={{ node_search }}&node_filter={{ node_filter }}"
+                    class="px-3 py-1 text-[10px] rounded transition-colors {% if conn_filter == 'data' %}bg-cyan-500/20 text-cyan-400{% else %}text-gray-500 hover:text-cyan-400{% endif %}">Data</a>
+                <a href="?conn_filter=inference&conn_search={{ conn_search }}&node_search={{ node_search }}&node_filter={{ node_filter }}"
+                    class="px-3 py-1 text-[10px] rounded transition-colors {% if conn_filter == 'inference' %}bg-purple-500/20 text-purple-400{% else %}text-gray-500 hover:text-purple-400{% endif %}">AI</a>
+            </div>
+
+            <a href="{% url 'custom_admin:connection_add' %}"
+                class="px-4 py-2 rounded bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-colors shadow-lg shadow-purple-900/20 whitespace-nowrap">
+                <i class="fas fa-project-diagram mr-1"></i> Connect
+            </a>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-gray-400">
+            <thead class="bg-white/5 text-gray-200 font-mono text-xs uppercase">
+                <tr>
+                    <th class="px-6 py-4">From Node</th>
+                    <th class="px-6 py-4 text-center">Flow Type</th>
+                    <th class="px-6 py-4">To Node</th>
+                    <th class="px-6 py-4">Strength</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% for conn in connections %}
+                <tr class="hover:bg-white/[0.02] transition-colors group">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-300 font-medium">{{ conn.from_node.title }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-2 py-1 rounded text-[10px] uppercase font-bold
+                            {% if conn.flow_type == 'data' %}bg-cyan-500/10 text-cyan-400 border border-cyan-500/20{% endif %}
+                            {% if conn.flow_type == 'inference' %}bg-purple-500/10 text-purple-400 border border-purple-500/20{% endif %}
+                            {% if conn.flow_type == 'feedback' %}bg-green-500/10 text-green-400 border border-green-500/20{% endif %}
+                        ">
+                            {% if conn.is_bidirectional %}<i class="fas fa-exchange-alt mr-1"></i>{% else %}<i
+                                class="fas fa-long-arrow-alt-right mr-1"></i>{% endif %}
+                            {{ conn.get_flow_type_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-gray-300 font-medium">{{ conn.to_node.title }}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <div class="flex space-x-0.5">
+                                {% for i in "12345"|make_list %}
+                                <div
+                                    class="w-1 h-3 rounded-sm {% if forloop.counter <= conn.strength %}bg-white{% else %}bg-gray-700{% endif %}">
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="{% url 'custom_admin:connection_edit' conn.pk %}"
+                            class="px-3 py-1 rounded border border-white/10 hover:bg-white/10 text-cyan-400 hover:text-white transition-colors text-xs">
+                            Edit
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        No connections found matching filters.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
