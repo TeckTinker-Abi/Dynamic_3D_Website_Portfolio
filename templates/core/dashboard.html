@@ -284,12 +284,85 @@
         </div>
     </div>
 
-    <!-- Navigation (Minimal) -->
-    <nav class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center mix-blend-difference">
-        <div class="font-scifi font-bold text-xl tracking-widest text-white">AM.SYS</div>
-        <a href="/admin" class="font-mono text-xs text-gray-400 hover:text-cyan-400 transition-colors">[ ADMIN_ACCESS
-            ]</a>
+    <!-- Navigation (Functional & Responsive) -->
+    <nav class="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center transition-all duration-300"
+        id="main-nav">
+        <!-- Logo -->
+        <a href="#"
+            class="font-scifi font-bold text-xl tracking-widest text-white hover:text-cyan-400 transition-colors">
+            AM.SYS
+        </a>
+
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex items-center space-x-8">
+            <a href="#system-universe"
+                class="font-mono text-xs text-gray-400 hover:text-cyan-400 transition-colors uppercase">System</a>
+            <a href="#projects"
+                class="font-mono text-xs text-gray-400 hover:text-cyan-400 transition-colors uppercase">Modules</a>
+            <a href="#capabilities"
+                class="font-mono text-xs text-gray-400 hover:text-cyan-400 transition-colors uppercase">Capabilities</a>
+            <a href="/admin"
+                class="font-mono text-xs text-cyan-500/80 hover:text-cyan-400 border border-cyan-500/30 px-3 py-1 rounded transition-all hover:bg-cyan-500/10">
+                [ ADMIN ]
+            </a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden text-white focus:outline-none" id="mobile-menu-btn">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="fixed inset-0 bg-black/95 z-40 hidden flex-col items-center justify-center space-y-8 markdown-body"
+            id="mobile-menu">
+            <button class="absolute top-6 right-6 text-white text-2xl" id="close-menu-btn">
+                <i class="fas fa-times"></i>
+            </button>
+            <a href="#system-universe" class="font-scifi text-xl text-white hover:text-cyan-400">SYSTEM_UNIVERSE</a>
+            <a href="#projects" class="font-scifi text-xl text-white hover:text-cyan-400">PROJECT_MODULES</a>
+            <a href="#capabilities" class="font-scifi text-xl text-white hover:text-cyan-400">CAPABILITIES</a>
+            <a href="/admin"
+                class="font-mono text-sm text-cyan-400 border border-cyan-500 px-6 py-2 rounded">ACCESS_ADMIN</a>
+        </div>
     </nav>
+
+    <script>
+        // Nav Background & Mobile Menu Logic
+        const nav = document.getElementById('main-nav');
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+
+        // Scroll Effect
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-black/80', 'backdrop-blur-md', 'border-b', 'border-white/5');
+            } else {
+                nav.classList.remove('bg-black/80', 'backdrop-blur-md', 'border-b', 'border-white/5');
+            }
+        });
+
+        // Mobile Menu Toggles
+        const toggleMenu = () => {
+            const isHidden = mobileMenu.classList.contains('hidden');
+            if (isHidden) {
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.classList.add('flex');
+            } else {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.classList.remove('flex');
+            }
+        };
+
+        mobileBtn.addEventListener('click', toggleMenu);
+        closeBtn.addEventListener('click', toggleMenu);
+
+        // Close menu when a link is clicked
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', toggleMenu);
+        });
+    </script>
 
     <!-- 1️⃣ Identity Core (Layout: 2-Column Split) -->
     <section class="min-h-screen w-full flex items-center justify-center relative z-10 px-6 py-20 section-gap">
@@ -319,7 +392,8 @@
                 </div>
                 <!-- Explore Cue -->
                 <div class="pt-12 opacity-0 translate-y-10" id="scroll-cue">
-                    <p class="font-mono text-xs text-gray-500 mb-4 uppercase tracking-widest animate-pulse">Explore My
+                    <p class="font-mono text-xs text-gray-500 mb-4 uppercase tracking-widest animate-pulse">Explore
+                        My
                         System ↓</p>
                     <div class="w-px h-16 bg-gradient-to-b from-cyan-500 to-transparent mx-auto lg:mx-0"></div>
                 </div>
@@ -364,7 +438,8 @@
     <section id="system-universe"
         class="w-full max-w-7xl mx-auto flex flex-col items-center section-gap relative min-h-[700px] justify-center">
         <div class="absolute top-0 text-center">
-            <h3 class="font-mono text-cyan-400 text-sm tracking-widest uppercase mb-2">/// SYSTEM_ARCHITECTURE_OVERVIEW
+            <h3 class="font-mono text-cyan-400 text-sm tracking-widest uppercase mb-2">///
+                SYSTEM_ARCHITECTURE_OVERVIEW
             </h3>
             <h2 class="font-scifi text-2xl text-white">Dynamic Data Flow</h2>
         </div>
@@ -484,7 +559,8 @@
                         {% else %}<i class="fas fa-server"></i>{% endif %}
                     </div>
 
-                    <h4 class="font-scifi text-xl font-bold mb-2 group-hover:text-white transition-colors">{{ cat.name
+                    <h4 class="font-scifi text-xl font-bold mb-2 group-hover:text-white transition-colors">{{
+                        cat.name
                         }}</h4>
                     <p class="text-sm text-gray-400 font-light mb-4">{{ cat.description }}</p>
 
@@ -615,8 +691,9 @@
         // Fix: Removed spaces after colons in default and yesno filters
         // const ANIMATION_SPEED = {{ global_config.animation_speed|default:1 }};   
         // const IS_3D_ENABLED = {{ global_config.enable_3d|yesno:"true,false" }};
-         const ANIMATION_SPEED = {{ global_config.animation_speed|default:1 }};
+        const ANIMATION_SPEED = {{ global_config.animation_speed|default:1 }};
         const IS_3D_ENABLED = {{ global_config.enable_3d|yesno:"true,false" }};
+
 
         // System Universe - Three.js Implementation
         const initThreeJS = () => {
