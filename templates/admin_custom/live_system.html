@@ -44,6 +44,11 @@
                         <p class="text-xs text-gray-500 mt-1">e.g., "System V2.0", "Maintenance Mode"</p>
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Status Label</label>
+                        {% styled_field form.status_label %}
+                        <p class="text-xs text-gray-500 mt-1">e.g., "/// ACTIVE_EVOLUTION_PHASE"</p>
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Highlight Tag</label>
                         {% styled_field form.highlight_tag %}
                         <p class="text-xs text-gray-500 mt-1">Short badge text, e.g., "LIVE", "BETA"</p>

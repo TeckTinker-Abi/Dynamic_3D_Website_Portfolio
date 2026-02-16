@@ -51,6 +51,8 @@ class IdentityCoreForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'slogan': forms.Textarea(attrs={'rows': 2}),
+            'current_status': forms.Select(attrs={'class': 'bg-black/20 border border-white/10 text-white rounded px-3 py-2 w-full'}),
+            'organization_name': forms.TextInput(attrs={'class': 'bg-black/20 border border-white/10 text-white rounded px-3 py-2 w-full', 'placeholder': 'e.g. MIT, Google, Freelance'}),
         }
 
 class LiveSystemForm(forms.ModelForm):
@@ -59,6 +61,7 @@ class LiveSystemForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
+            'status_label': forms.TextInput(attrs={'placeholder': '/// ACTIVE_EVOLUTION_PHASE'}),
         }
 
 class SystemNodeForm(forms.ModelForm):

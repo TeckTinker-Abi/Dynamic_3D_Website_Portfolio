@@ -275,11 +275,14 @@ def category_delete(request, pk):
 def dashboard_content(request):
     metrics = ImpactMetric.objects.all()
     capabilities = CapabilitySignal.objects.all()
-    current_focus = CurrentFocus.objects.all()
+    focus_items_list = list(CurrentFocus.objects.all()) # Force evaluation
+    # Debug print
+    print(f"DEBUG VIEW: focus_items_list count: {len(focus_items_list)}")
+
     return render(request, 'admin_custom/dashboard_content.html', {
         'metrics': metrics,
         'capabilities': capabilities,
-        'current_focus': current_focus
+        'focus_items_list': focus_items_list  # Renamed key
     })
 
 @user_passes_test(is_admin)
@@ -295,7 +298,12 @@ def capability_edit(request, pk=None):
 @user_passes_test(is_admin)
 def current_focus_edit(request, pk=None):
     return generic_edit(request, CurrentFocus, CurrentFocusForm, pk, 'custom_admin:dashboard_content', 
-                       "Current Focus", "Current area of research or interest.")
+                       "Current Focus", "Current area of research or interest.",
+                       delete_url_name='custom_admin:focus_delete')
+
+@user_passes_test(is_admin)
+def current_focus_delete(request, pk):
+    return generic_delete(request, CurrentFocus, pk, 'custom_admin:dashboard_content', "Current Focus Item")
 
 # --- SETTINGS ---
 @user_passes_test(is_admin)

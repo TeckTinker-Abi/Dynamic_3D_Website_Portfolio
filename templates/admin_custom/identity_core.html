@@ -46,6 +46,16 @@
                         <label class="block text-sm font-medium text-gray-300 mb-2">Profile Title</label>
                         {% styled_field form.profile_title %}
                     </div>
+                    <div class="grid grid-cols-2 gap-4">
+                         <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Status</label>
+                            {% styled_field form.current_status %}
+                         </div>
+                         <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Organization / College</label>
+                            {% styled_field form.organization_name %}
+                         </div>
+                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Degree / Qualification</label>
                         {% styled_field form.degree %}

@@ -20,6 +20,14 @@ class IdentityCore(models.Model):
     enable_avatar_mode = models.BooleanField(default=False)
     explore_cta_text = models.CharField(max_length=50, blank=True, null=True, help_text="Text for the main CTA button")
 
+    STATUS_CHOICES = [
+        ('student', 'Student'),
+        ('professional', 'Professional'),
+        ('freelancer', 'Freelancer'),
+    ]
+    current_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='student')
+    organization_name = models.CharField(max_length=150, blank=True, null=True, help_text="Company Name or College Name")
+    
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -41,7 +49,9 @@ class LiveSystem(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     is_active = models.BooleanField(default=True)
-    highlight_tag = models.CharField(max_length=50, blank=True, null=True, help_text="e.g. 'v2.0 Beta'")
+    status_label = models.CharField(max_length=50, default="/// ACTIVE_EVOLUTION_PHASE", help_text="System status header (e.g. '/// CURRENT_BUILD_STATUS')")
+    highlight_tag = models.CharField(max_length=50, blank=True, null=True, help_text="e.g. 'v2.0 Beta' or 'Experimental'")
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name_plural = "Live System (Singleton)"
@@ -59,9 +69,9 @@ class LiveSystem(models.Model):
 
 class CapabilitySignal(models.Model):
     STRENGTH_CHOICES = [
-        ('Low', 'Low'),
-        ('Medium', 'Medium'),
-        ('High', 'High'),
+        ('core', 'Core Strength'),
+        ('advanced', 'Advanced'),
+        ('proficient', 'Proficient'),
     ]
     title = models.CharField(max_length=100)
     strength_level = models.CharField(max_length=10, choices=STRENGTH_CHOICES, default='Medium')
@@ -88,7 +98,8 @@ class ImpactMetric(models.Model):
 
 class CurrentFocus(models.Model):
     title = models.CharField(max_length=100)
-    description = models.CharField(max_length=255)
+    description = models.TextField(blank=True, help_text="Short description of the focus area.")
+    icon = models.CharField(max_length=50, default="fas fa-bullseye", help_text="Font Awesome class (e.g. 'fas fa-code')")
     display_order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
 

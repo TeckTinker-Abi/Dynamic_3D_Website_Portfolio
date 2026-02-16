@@ -37,6 +37,7 @@ urlpatterns = [
     path('content/capability/<int:pk>/', views.capability_edit, name='capability_edit'),
     path('content/focus/add/', views.current_focus_edit, name='focus_add'),
     path('content/focus/<int:pk>/', views.current_focus_edit, name='focus_edit'),
+    path('content/focus/delete/<int:pk>/', views.current_focus_delete, name='focus_delete'),
 
     # Settings
     path('settings/', views.global_settings, name='global_settings'),

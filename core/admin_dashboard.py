@@ -8,7 +8,7 @@ class GlobalSettingAdmin(admin.ModelAdmin):
 
 @admin.register(IdentityCore)
 class IdentityCoreAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'degree', 'profile_title', 'updated_at')
+    list_display = ('full_name', 'current_status', 'organization_name', 'updated_at')
     
     def has_add_permission(self, request):
         if self.model.objects.exists():
@@ -37,5 +37,5 @@ class CapabilitySignalAdmin(admin.ModelAdmin):
 
 @admin.register(CurrentFocus)
 class CurrentFocusAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'display_order', 'is_active')
+    list_display = ('title', 'icon', 'display_order', 'is_active')
     list_editable = ('display_order', 'is_active')

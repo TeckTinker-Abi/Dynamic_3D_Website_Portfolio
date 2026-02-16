@@ -1,9 +1,11 @@
 from django.shortcuts import render
-from projects.models import Project, Category
+from django.db.models import Count
+from projects.models import Project, Category, Technology, TechnologyCategory
 from skills.models import Skill
 from .models import Profile, GlobalConfiguration
 from .system_models import SystemNode, SystemConnection
 from .dashboard_models import IdentityCore, LiveSystem, ImpactMetric, CapabilitySignal, CurrentFocus
+from django.db.models import Prefetch
 
 def dashboard(request):
     featured_projects = Project.objects.filter(featured=True)[:4]
@@ -21,11 +23,16 @@ def dashboard(request):
     global_config = GlobalConfiguration.objects.first()
 
     # Get Categories with counts
-    categories = Category.objects.all()
+    categories = Category.objects.annotate(project_count=Count('project'))
 
     # System Universe Data
     system_nodes = SystemNode.objects.filter(is_active=True).order_by('-is_core', 'order_index')
     connections = SystemConnection.objects.all()
+
+    # Tech Stack - Efficient Prefetch
+    tech_categories = TechnologyCategory.objects.filter(is_active=True).order_by('display_order').prefetch_related(
+        Prefetch('technologies', queryset=Technology.objects.filter(is_active=True).order_by('display_order'))
+    )
 
     context = {
         "featured_projects": featured_projects,
@@ -39,6 +46,7 @@ def dashboard(request):
         "categories": categories,
         "system_nodes": system_nodes,
         "connections": connections,
+        "tech_categories": tech_categories,
     }
 
     return render(request, "core/dashboard.html", context)
