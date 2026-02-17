@@ -15,7 +15,7 @@ import dj_database_url
 
 # ...
 
-ALLOWED_HOSTS = ['*'] # For Render, or specific domain
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '*', 'render.com'] # Allow all for simplicity
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
