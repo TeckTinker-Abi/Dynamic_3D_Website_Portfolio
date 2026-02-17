@@ -15,7 +15,9 @@ import dj_database_url
 
 # ...
 
-ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '*', 'render.com'] # Allow all for simplicity
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '*', 'render.com', '.railway.app', '.up.railway.app'] # Allow all for simplicity
+
+CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.up.railway.app', 'https://*.onrender.com', 'https://*.vercel.app']
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
