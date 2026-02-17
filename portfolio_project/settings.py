@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     
     # Third party
     'ckeditor',
+    # 'django_icon_picker', # Removed due to incompatibility
+    # 'fontawesome_5', # Removed due to incompatibility
     
     # Local Apps
     'core',

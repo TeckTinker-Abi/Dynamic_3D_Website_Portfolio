@@ -49,11 +49,15 @@ class TechnologyCategory(models.Model):
     def __str__(self):
         return self.name
 
+# from django_icon_picker.fields import IconPickerField
+# from fontawesome_5.fields import IconField
+
 class Technology(models.Model):
     category = models.ForeignKey(TechnologyCategory, on_delete=models.CASCADE, related_name='technologies')
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
     icon = models.ImageField(upload_to="tech_icons/", blank=True, null=True)
+    # icon = IconField() # Reverted due to Django 5 compatibility issues
     is_active = models.BooleanField(default=True)
     display_order = models.IntegerField(default=0)
     
@@ -111,6 +115,24 @@ class Project(models.Model):
     trust_live_data = models.BooleanField(default=False)
     trust_production_ready = models.BooleanField(default=False)
     trust_hardware_integrated = models.BooleanField(default=False)
+
+    # New Project Badge Fields
+    COMPLEXITY_CHOICES = [
+        ('Intermediate', 'Intermediate'),
+        ('Advanced', 'Advanced'),
+        ('Research', 'Research'),
+        ('Production', 'Production'),
+    ]
+    STATUS_CHOICES = [
+        ('Prototype', 'Prototype'),
+        ('Production', 'Production'),
+        ('Research', 'Research'),
+        ('Experimental', 'Experimental'),
+    ]
+    
+    complexity = models.CharField(max_length=20, choices=COMPLEXITY_CHOICES, default='Intermediate')
+    deployment_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Prototype')
+    system_layers = models.JSONField(default=list, blank=True, help_text="List of layers e.g. ['Hardware', 'Backend', 'AI', 'Application']", verbose_name="System Layers (JSON)")
 
     def save(self, *args, **kwargs):
         from django.utils.text import slugify
