@@ -346,21 +346,31 @@
         <div class="cyber-ring ring-2"></div>
         <div class="cyber-ring ring-3"></div>
         
-        <div class="loader-wrapper">
-            <div class="mb-4">
-                <i class="fas fa-microchip text-4xl text-cyan-500 animate-pulse"></i>
+        <div class="loader-wrapper flex flex-col items-center max-w-lg w-full">
+            <div class="mb-6 text-center">
+                <i class="fas fa-microchip text-4xl text-cyan-500 animate-pulse mb-4"></i>
+                <h2 class="font-scifi text-lg md:text-xl text-white tracking-widest uppercase mb-2">
+                    You are entering Abishek’s<br>AI Portfolio System
+                </h2>
+                <div class="h-px w-24 bg-gradient-to-r from-transparent via-cyan-500 to-transparent mx-auto"></div>
             </div>
-            <div class="loader-text">Initializing a Dynamic<br>3D Portfolio World</div>
             
-            <div class="loader-bar-track">
-                <div class="loader-bar-fill"></div>
+            <!-- Terminal Logs -->
+            <div class="font-mono text-xs md:text-sm text-left w-full space-y-2 mb-8 pl-4 border-l-2 border-white/10" id="boot-logs">
+                <div class="log-line opacity-0 text-gray-400">Initializing Neural Interface...</div>
+                <div class="log-line opacity-0 text-gray-400">Loading Machine Learning Modules...</div>
+                <div class="log-line opacity-0 text-gray-400">Syncing Project Database...</div>
+                <div class="log-line opacity-0 text-gray-400">Deploying Interactive 3D Environment...</div>
+                <div class="log-line opacity-0 text-green-400 font-bold mt-4">System Status: Online</div>
             </div>
-            
-            <!-- <div class="loader-subtext">
-                <div><span class="status-dot active"></span>NET</div>
-                <div><span class="status-dot active" style="animation-delay: 0.2s"></span>CPU</div>
-                <div><span class="status-dot active" style="animation-delay: 0.4s"></span>MEM</div>
-            </div> -->
+
+            <!-- Interaction -->
+            <button id="enter-portal" class="opacity-0 translate-y-4 group relative px-8 py-3 bg-cyan-500/10 border border-cyan-500 text-cyan-400 font-scifi tracking-widest uppercase text-sm hover:bg-cyan-500 hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.6)]">
+                <span class="relative z-10 flex items-center gap-3">
+                    <span>Enter the World</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </span>
+            </button>
         </div>
     </div>
 
@@ -375,7 +385,7 @@
         <!-- Logo -->
         <a href="#"
             class="font-scifi font-bold text-xl tracking-widest text-white hover:text-cyan-400 transition-colors">
-            Abishek's System
+            Abishek's Protfolio
         </a>
 
         <!-- Desktop Menu -->
@@ -511,10 +521,17 @@
                                 <i class="fas fa-chevron-down opacity-50 text-gray-500 group-hover:text-cyan-400 group-hover:opacity-100 group-hover:translate-y-1 transition-all z-10"></i>
                             </span>
                         </div>
-                        <!-- Vertical Line -->
-                        <!-- <div class="w-px h-16 bg-gradient-to-b from-cyan-500/50 to-transparent mx-auto lg:ml-8 transition-all duration-500 group-hover:h-24"></div> -->
                     </a>
                 </div>
+
+                <!-- Visitor Count (Aligned) -->
+                <div class="pt-2 opacity-0 translate-y-10 flex flex-col items-center lg:items-start" id="visitor-stats">
+                    <div class="inline-flex items-center gap-2 font-mono text-[10px] text-gray-600 border border-white/5 px-3 py-1.5 rounded bg-black/40 backdrop-blur-sm hover:border-cyan-500/30 transition-colors">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]"></span>
+                        <span>SYSTEM_VISITS: <span class="text-cyan-400 font-bold">{{ visitor_count }}</span></span>
+                    </div>
+                </div>
+
             </div>
 
             <!-- RIGHT SIDE: Visual Identity (Photo OR Bot) -->
@@ -1177,8 +1194,8 @@
         // Fix: Removed spaces after colons in default and yesno filters
         // const ANIMATION_SPEED = {{ global_config.animation_speed|default:1 }};   
         // const IS_3D_ENABLED = {{ global_config.enable_3d|yesno:"true,false" }};
-        const ANIMATION_SPEED = {{ global_config.animation_speed|default:1 }};
-        const IS_3D_ENABLED = {{ global_config.enable_3d|yesno:"true,false" }};
+        const ANIMATION_SPEED = parseFloat("{{ global_config.animation_speed|default:1 }}"); 
+        const IS_3D_ENABLED = "{{ global_config.enable_3d|yesno:'true,false' }}" === "true";
 
         const initThreeJS = () => {
             if (!IS_3D_ENABLED) return; // Exit if 3D is disabled by config
@@ -1295,80 +1312,127 @@
             });
         };
 
-        // Text Animations with GSAP
-        const initAnimations = () => {
-            gsap.registerPlugin(ScrollTrigger);
+        // Initialize 3D
+        initThreeJS();
 
-            // Hide loader
-            const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
 
-            tl.to("#loader", {
+        // Hero Section Entry
+        const tl = gsap.timeline({ paused: true });
+
+        tl.to("h1", { opacity: 1, y: 0, duration: 1, ease: "power4.out" })
+          .to("#role-line", { opacity: 1, y: 0, duration: 1, ease: "power4.out" }, "-=0.5")
+          .to("#visual-identity", { opacity: 1, scale: 1, duration: 1.2, ease: "back.out(1.7)" }, "-=0.8")
+          .to("#scroll-cue", { opacity: 1, y: 0, duration: 1, ease: "power2.out" }, "-=0.5")
+          .to("#visitor-stats", { opacity: 1, y: 0, duration: 1, ease: "power2.out" }, "-=0.8");
+
+        // Section Headers
+        gsap.utils.toArray("section h2").forEach(header => {
+            gsap.from(header, {
                 opacity: 0,
+                y: 50,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: header,
+                    start: "top 80%",
+                    toggleActions: "play none none reverse"
+                }
+            });
+        });
+
+        // Glass Cards Stagger
+        gsap.utils.toArray(".glass-card").forEach((card, i) => {
+            gsap.from(card, {
+                opacity: 0,
+                y: 30,
                 duration: 0.8,
-                onComplete: () => document.getElementById("loader").style.display = "none"
-            })
-                // 1. Name: Glitch/Scramble Effect
-                .call(() => {
-                    const nameEl = document.querySelector("#identity-content h1");
-                    const originalText = nameEl.innerText;
-                    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-                    let iterations = 0;
+                delay: i * 0.1,
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 85%",
+                }
+            });
+        });
 
-                    nameEl.style.opacity = 1; // Make visible for effect
-                    nameEl.style.transform = "translateY(0)";
+        // Boot Sequence & Loader Logic
+        const runBootSequence = () => {
+            const loader = document.getElementById('loader');
+            const enterBtn = document.getElementById('enter-portal');
+            const bootLogs = document.getElementById('boot-logs');
+            const loaderTextHeader = document.querySelector('.loader-wrapper h2');
+            
+            // Check session immediately
+            const isSystemBooted = sessionStorage.getItem('system_booted');
 
-                    const interval = setInterval(() => {
-                        nameEl.innerText = originalText
-                            .split("")
-                            .map((letter, index) => {
-                                if (index < iterations) {
-                                    return originalText[index];
-                                }
-                                return chars[Math.floor(Math.random() * chars.length)];
-                            })
-                            .join("");
+            if (!isSystemBooted) {
+                // === SCENARIO 1: FIRST VISIT (Full Boot Sequence) ===
+                
+                // Wait for window load to ensure smooth animation start
+                window.addEventListener('load', () => {
+                    const bootTl = gsap.timeline();
 
-                        if (iterations >= originalText.length) {
-                            clearInterval(interval);
-                            nameEl.innerText = originalText; // Ensure final state is clean
+                    // 1. Reveal Logs (Slower/Original Speed)
+                    bootTl.to(".log-line", {
+                        opacity: 1,
+                        duration: 0.5,
+                        stagger: 0.8, // Original deliberate pace
+                        ease: "power2.inOut"
+                    })
+                    // 2. Reveal Enter Button
+                    .to(enterBtn, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        ease: "back.out(1.7)"
+                    });
+
+                    // 3. Handle Enter Click
+                    enterBtn.addEventListener('click', () => {
+                        sessionStorage.setItem('system_booted', 'true');
+
+                        gsap.to(loader, {
+                            opacity: 0,
+                            scale: 1.1, // Original zoom
+                            duration: 1,
+                            onComplete: () => {
+                                loader.style.display = 'none';
+                                tl.play(); // Start Hero Animation
+                            }
+                        });
+                    });
+                });
+
+            } else {
+                // === SCENARIO 2: INTERNAL NAVIGATION (Quick Loader) ===
+                // Execute IMMEDIATELY to prevent content flash
+                
+                if(bootLogs) bootLogs.style.display = 'none';
+                if(enterBtn) enterBtn.style.display = 'none';
+                
+                if(loaderTextHeader) {
+                    loaderTextHeader.innerHTML = "RESUMING SYSTEM PROTOCOLS...";
+                    loaderTextHeader.classList.add('text-cyan-400', 'animate-pulse');
+                    loaderTextHeader.classList.remove('text-white');
+                }
+
+                // Wait for load just to fade out off
+                window.addEventListener('load', () => {
+                    gsap.to(loader, {
+                        opacity: 0,
+                        duration: 0.8,
+                        delay: 0.5,
+                        onComplete: () => {
+                            loader.style.display = 'none';
+                            tl.play(); 
                         }
-
-                        iterations += 1 / 3; // Speed of decode
-                    }, 30);
-                })
-            // 2. Reveal Role Line (Container)
-            // We animate the parent #role-line because it has the 'opacity-0' class
-            tl.to("#role-line", {
-                opacity: 1,
-                y: 0,
-                duration: 0.8
-            }, "+=0.5");
-
-            // 3. Visual Identity Pop
-            if (document.querySelector("#visual-identity")) {
-                tl.to("#visual-identity", {
-                    opacity: 1,
-                    scale: 1,
-                    duration: 1.5,
-                    ease: "elastic.out(1, 0.5)"
-                }, "-=0.8");
-            }
-
-            // 4. Scroll Cue Fade In
-            if (document.querySelector("#scroll-cue")) {
-                tl.to("#scroll-cue", {
-                    opacity: 1,
-                    y: 0,
-                    duration: 1
-                }, "-=1");
+                    });
+                });
             }
         };
 
-        // Init
-        window.addEventListener('DOMContentLoaded', () => {
-            initThreeJS();
-            setTimeout(initAnimations, 2000); // Simulate system boot
-        });
+        runBootSequence();
+
     </script>
 </body>
 

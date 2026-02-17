@@ -34,6 +34,11 @@ def dashboard(request):
         Prefetch('technologies', queryset=Technology.objects.filter(is_active=True).order_by('display_order'))
     )
 
+    # Analytics
+    from analytics.models import SiteVisit
+    # Count unique IP addresses for "Unique Visitors" metric
+    visitor_count = SiteVisit.objects.values('ip_address').distinct().count()
+
     context = {
         "featured_projects": featured_projects,
         "skills": skills, # Keep for now
@@ -47,6 +52,7 @@ def dashboard(request):
         "system_nodes": system_nodes,
         "connections": connections,
         "tech_categories": tech_categories,
+        "visitor_count": visitor_count,
     }
 
     return render(request, "core/dashboard.html", context)

@@ -56,8 +56,8 @@ class Technology(models.Model):
     category = models.ForeignKey(TechnologyCategory, on_delete=models.CASCADE, related_name='technologies')
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
-    icon = models.ImageField(upload_to="tech_icons/", blank=True, null=True)
-    # icon = IconField() # Reverted due to Django 5 compatibility issues
+    # icon = models.ImageField(upload_to="tech_icons/", blank=True, null=True)
+    icon = models.CharField(max_length=50, blank=True, null=True, help_text="FontAwesome class e.g. 'fab fa-python'")
     is_active = models.BooleanField(default=True)
     display_order = models.IntegerField(default=0)
     
