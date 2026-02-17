@@ -335,10 +335,103 @@
         }
 
     </style>
+    <!-- Lenis Smooth Scroll (Updated CDN) -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+    <!-- Custom Cursor & Lenis Styles -->
+    <style>
+        html.lenis, html.lenis body { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+        .lenis.lenis-scrolling iframe { pointer-events: none; }
+        
+        body { cursor: none; } /* Hide default cursor */
+        
+        /* HUD Data Cursor */
+        #hud-cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 40px; height: 40px;
+            pointer-events: none;
+            z-index: 2147483647;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            mix-blend-mode: difference;
+            transition: width 0.3s, height 0.3s;
+        }
+
+        #cursor-center-dot {
+            width: 16px; height: 16px; /* Larger */
+            border: 3px solid var(--cyan-core); /* Thicker */
+            background-color: rgba(6, 182, 212, 0.15); /* Slight fill */
+            transform: rotate(45deg); 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s, border-color 0.2s;
+            box-shadow: 0 0 15px var(--cyan-core), inset 0 0 5px var(--cyan-core); /* Stronger Glow */
+            position: relative;
+            backdrop-filter: blur(2px); /* Glass effect */
+        }
+
+        /* Tiny precise center dot */
+        #cursor-center-dot::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 4px; height: 4px; /* Larger inner dot */
+            background: #ffffff; /* White for contrast */
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            box-shadow: 0 0 5px #ffffff;
+        }
+
+        /* Coords styles removed */
+
+        /* Hover State */
+        body.hovering #cursor-center-dot {
+            background-color: rgba(216, 180, 254, 0.4); /* Lavender fill */
+            border-color: #d8b4fe;
+            box-shadow: 0 0 20px #d8b4fe, inset 0 0 10px #d8b4fe;
+            transform: rotate(225deg) scale(1.3); 
+        }
+        
+        body.hovering #cursor-center-dot::after {
+            background: #d8b4fe;
+        }
+
+        /* === Ripple Effect === */
+        .cursor-ripple {
+            position: fixed;
+            width: 20px; height: 20px;
+            border: 1px solid rgba(6, 182, 212, 0.6); /* Keep movement ripples Cyan */
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2147483640; /* Below cursor */
+            transform: translate(-50%, -50%) scale(0);
+            animation: rippleExpand 0.8s linear forwards;
+        }
+
+        .ripple-large {
+            border: 2px solid rgba(216, 180, 254, 0.8); /* Lavender splash */
+            width: 40px; height: 40px;
+            animation: rippleExpand 0.6s ease-out forwards;
+        }
+
+        @keyframes rippleExpand {
+            0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+    </style>
 </head>
 
 <body class="antialiased selection:bg-cyan-500 selection:text-black theme-{{ global_config.background_style|lower }}">
 
+    <!-- HUD Data Cursor HTML (No Brackets) -->
+    <div id="hud-cursor">
+        <div id="cursor-center-dot"></div>
+        <!-- Coords Removed -->
+    </div>
 
     <!-- Loader -->
     <div id="loader">
@@ -507,7 +600,7 @@
                         </p>
                     </div>
                 </div>
-                <!-- Explore Cue -->
+                <!-- py -->
                 <div class="pt-12 opacity-0 translate-y-10" id="scroll-cue">
                     <a href="#system-universe" class="group inline-flex flex-col items-center lg:items-start gap-4 focus:outline-none">
                         <div class="transition-all duration-300">
@@ -1433,7 +1526,107 @@
 
         runBootSequence();
 
+        // === 1. Lenis Smooth Scroll ===
+        // === 1. Lenis Smooth Scroll Setup ===
+        let lenis;
+        try {
+            lenis = new Lenis({
+                duration: 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                direction: 'vertical',
+                gestureDirection: 'vertical',
+                smooth: true,
+                mouseMultiplier: 1,
+                smoothTouch: false,
+                touchMultiplier: 2,
+            });
+
+            // Integrate with GSAP ScrollTrigger
+            lenis.on('scroll', ScrollTrigger.update);
+
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+
+            gsap.ticker.lagSmoothing(0);
+            console.log("Lenis Scroll Initialized");
+        } catch (e) {
+            console.error("Lenis Init Error:", e);
+        }
+
+        // === 5. HUD Data Cursor Logic ===
+        const hudCursor = document.getElementById('hud-cursor');
+        
+        let mouseX = -100, mouseY = -100;
+        let cursorX = -100, cursorY = -100;
+
+        // Track Mouse & Ripple Logic
+        let lastRippleTime = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            // Create movement ripples (throttled)
+            const now = Date.now();
+            if (now - lastRippleTime > 50) { // Every 50ms
+                createRipple(mouseX, mouseY, 'small');
+                lastRippleTime = now;
+            }
+        });
+
+        // Click Ripple
+        document.addEventListener('click', (e) => {
+            createRipple(e.clientX, e.clientY, 'large');
+        });
+
+        // Function to spawn ripples
+        function createRipple(x, y, type) {
+            const ripple = document.createElement('div');
+            ripple.classList.add('cursor-ripple');
+            if (type === 'large') ripple.classList.add('ripple-large');
+            
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            document.body.appendChild(ripple);
+
+            // Remove after animation
+            setTimeout(() => {
+                ripple.remove();
+            }, 1000);
+        }
+
+        // Animate Cursor
+        const animateHudCursor = () => {
+            // Smooth Lag
+            cursorX += (mouseX - cursorX) * 0.15;
+            cursorY += (mouseY - cursorY) * 0.15;
+            
+            // Move Cursor
+            hudCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`;
+            
+            requestAnimationFrame(animateHudCursor);
+        };
+        animateHudCursor();
+
+        // Hover Effects (Re-use existing logic)
+        const interactiveSelectors = 'a, button, .glass-card, .domain-node, input, select, textarea, [role="button"]';
+        const interactiveElements = document.querySelectorAll(interactiveSelectors);
+
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+
+        // Hide/Show
+        document.body.addEventListener('mouseleave', () => {
+            gsap.to(hudCursor, { opacity: 0, duration: 0.2 });
+        });
+        document.body.addEventListener('mouseenter', () => {
+             gsap.to(hudCursor, { opacity: 1, duration: 0.2 });
+        });
+
+        console.log("HUD Cursor with Ripples Initialized");
     </script>
 </body>
-
 </html>
